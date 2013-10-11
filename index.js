@@ -63,8 +63,5 @@ function immediate(fn) {
 }
 
 function errify(e) {
-  if (e instanceof Error)
-    return e;
-  else
-    return new Error(e);
+  return (e instanceof Error) ? e : new Error(e);
 }

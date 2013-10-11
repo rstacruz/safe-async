@@ -89,3 +89,23 @@ describe 'promise as async', ->
       expect(e).instanceof Error
       expect(e.message).eql 'hi'
       done()
+
+# ----------------------------------------------------------------------------
+describe 'promise as promise', ->
+  it 'should work with ok', (done) ->
+    fn = defer ->
+      Q.promise (ok, fail) ->
+        ok "hi"
+
+    fn().then (msg) ->
+      expect(msg).eql "hi"
+      done()
+
+  it 'should work with fail', (done) ->
+    fn = defer ->
+      Q.promise (ok, fail) ->
+        fail "hi"
+
+    fn().then null, (msg) ->
+      expect(msg.message).eql "hi"
+      done()
