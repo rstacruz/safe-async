@@ -3,6 +3,7 @@ require './setup'
 defer = require '..'
 Q = require 'q'
 fn = null
+timeout = (fn) -> setTimeout fn, 20
 
 # ----------------------------------------------------------------------------
 describe 'async as async', ->
@@ -108,4 +109,15 @@ describe 'promise as promise', ->
 
     fn().then null, (msg) ->
       expect(msg.message).eql "hi"
+      done()
+
+# ----------------------------------------------------------------------------
+describe 'error catching', ->
+  it 'should work', (done) ->
+    fn = defer (next) ->
+      timeout next ->
+        throw new Error("Hi")
+
+    fn (e, msg) ->
+      expect(e.message).eql "Hi"
       done()
