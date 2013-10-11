@@ -53,6 +53,11 @@ describe 'async as async', ->
       expect(e).eql err
       done()
 
+  it 'return values', ->
+    fn = defer (next) -> 42
+
+    expect(fn(->)).eql 42
+
 # ----------------------------------------------------------------------------
 describe 'async as promise', ->
   it 'should return a promise', ->

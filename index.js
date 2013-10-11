@@ -1,5 +1,9 @@
+/**
+ * Promise/async shim.
+ */
+
 var defer = module.exports = function(fn) {
-  // Return a function that decorates the original
+  // Return a function that decorates the original `fn`.
   return function() {
     var self = this;
     var last = arguments[arguments.length-1];
@@ -79,11 +83,15 @@ var defer = module.exports = function(fn) {
   };
 };
 
+/**
+ * This is the promise creator.
+ */
+
 defer.promise = require('q').promise;
 
 function immediate(fn) {
   if (typeof setImmediate === 'function') setImmediate(fn);
-  else if (typeof process === 'object') process.okTick(fn);
+  else if (typeof process === 'object') process.nextTick(fn);
   else setTimeout(fn, 0);
 }
 
