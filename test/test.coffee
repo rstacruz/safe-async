@@ -4,35 +4,36 @@ defer = require '..'
 Q = require 'q'
 fn = null
 
-describe 'async usage', ->
-  it 'should work as async', (ok) ->
+# ----------------------------------------------------------------------------
+describe 'async as async', ->
+  it 'should work as async', (done) ->
     fn = defer (next) ->
       next("hi")
 
     fn (e, message) ->
-      expect(e).undefined
+      throw e if e
       expect(message).eql "hi"
-      ok()
+      done()
 
-  it 'should work as async with 1 argument', (ok) ->
+  it 'should work as async with 1 argument', (done) ->
     fn = defer (name, next) ->
       next("hi #{name}")
 
     fn 'John', (e, message) ->
-      expect(e).undefined
+      throw e if e
       expect(message).eql "hi John"
-      ok()
+      done()
 
-  it 'should work as async with 2 args', (ok) ->
+  it 'should work as async with 2 args', (done) ->
     fn = defer (dude, lady, next) ->
       next("hi #{dude} and #{lady}")
 
-    fn 'John', 'Yoko', (e, message) ->
-      expect(e).undefined
-      expect(message).eql "hi John and Yoko"
-      ok()
+    fn 'John', 'Ydoneo', (e, message) ->
+      throw e if e
+      expect(message).eql "hi John and Ydoneo"
+      done()
 
-  it 'should work with error', (ok) ->
+  it 'should work with error', (done) ->
     err = new Error("Uh oh")
 
     fn = defer (next) ->
@@ -40,30 +41,51 @@ describe 'async usage', ->
 
     fn (e) ->
       expect(e).eql err
-      ok()
+      done()
 
-  it 'throwing errors', (ok) ->
+  it 'throwing errors', (done) ->
     err = new Error("oops")
     fn = defer (next) ->
       throw err
 
     fn (e) ->
       expect(e).eql err
-      ok()
+      done()
 
-describe 'promise usage', ->
+# ----------------------------------------------------------------------------
+describe 'async as promise', ->
   it 'should return a promise', ->
     fn = defer (next) ->
       next("hi")
 
     expect(fn("hello").then).function
 
-  it 'should work', (ok) ->
+  it 'should work', (done) ->
     fn = defer (next) ->
       next("hi")
 
     fn("hello").then (message) ->
       expect(message).eql "hi"
-      ok()
+      done()
 
+# ----------------------------------------------------------------------------
+describe 'promise as async', ->
+  it 'should work with ok', (done) ->
+    fn = defer ->
+      Q.promise (ok, fail) ->
+        ok "hi"
 
+    fn (e, msg) ->
+      throw e if e
+      expect(msg).eql "hi"
+      done()
+
+  it 'should work with fail', (done) ->
+    fn = defer ->
+      Q.promise (ok, fail) ->
+        fail "hi"
+
+    fn (e, msg) ->
+      expect(e).instanceof Error
+      expect(e.message).eql 'hi'
+      done()

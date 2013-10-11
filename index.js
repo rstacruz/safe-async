@@ -8,7 +8,14 @@ var defer = module.exports = function(fn) {
 
     // Swap out the last arg for a new callback
     var invoke = function() {
-      fn.apply(self, args.concat([next]));
+      try {
+        var result = fn.apply(self, args.concat([next]));
+        if (result && result.then) {
+          result.then(next, function(err) { next(errify(err)); });
+        }
+      } catch (err) {
+        next(err);
+      }
     };
 
     // Used as an async
@@ -55,3 +62,9 @@ function immediate(fn) {
   else setTimeout(fn, 0);
 }
 
+function errify(e) {
+  if (e instanceof Error)
+    return e;
+  else
+    return new Error(e);
+}
