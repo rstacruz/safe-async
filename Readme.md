@@ -12,16 +12,17 @@ Hate writing async functions? I used to, too. Defer.js solves many headaches
 with writing asynchronous functions. It's great for writing API libraries or
 models that do things asynchronously.
 
- * It ensures proper error propagation.
+ * __Ensures proper error propagation.__ No need for lots of try/catch blocks: 
+ those will be taken care of for you.
 
- * Ensures that errors are proper `Error` objects.
+ * __Ensures that errors are proper `Error` objects.__ Any errors thrown by your 
+async functions should be standard error objects. ([info](#next-err))
 
- * It makes your function work with async callbacks or promises with no extra 
- code.
+ * __Promises or callbacks.__ It makes your functions work with both async 
+ callbacks or promises with no extra code.
 
- * Works for Node.js and the browser.
-
- * It's pretty damn small (~70loc).
+ * __Portable.__ Works for Node.js and the browser. It's also pretty damn small 
+ (~70loc).
 
 What does it solve
 ------------------
