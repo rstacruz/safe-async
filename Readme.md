@@ -43,6 +43,83 @@ which helps you write promise functions and work with many promise objects.
 However, you can hook up defer.js to use any of those to generate
 promises.
 
+Get started in 20 seconds
+-------------------------
+
+~~~
+$ npm install rstacruz/defer
+~~~
+
+Then:
+
+~~~ js
+var defer = require('defer');
+defer.promise = require('q').promise; /* <- optional */
+~~~
+
+Instead of writing an async function like so:
+
+~~~ js
+// Old-fashioned callback way
+x = function(a, b, c, done) {
+  if (success)
+    done(null, "Result here");
+  else
+    done("uh oh, error");
+};
+~~~
+
+Wrap that function in `defer` instead. (See [defer()](#defer))
+
+~~~ js
+// New defer.js way
+x = defer(function(a, b, c, next) {
+  if (success)
+    next("Result here");
+  else
+    throw "uh oh, error";
+});
+~~~
+
+When invoking another async function, wrap the callback in `next` too. This will catch
+errors inside that function: (See [next.wrap()](#next-wrap))
+
+~~~ js
+x = defer(function(a, b, c, next) {
+  $.get('/', next(function() { // <-- here
+    if (success)
+      next("Result here");
+    else
+      throw "uh oh, error";
+  });
+});
+~~~
+
+Bonus: now your function can be used as a promise or a regular callback-powered async:
+
+~~~ js
+// Callback style
+// (called with a function as the last param)
+x(a, b, c, function(err, result) {
+  if (err)
+    console.log("Fail:", err);
+  else
+    console.log("OK:", result);
+});
+~~~
+
+~~~ js
+// Promise/A+ style
+// (called without a function in the last param)
+x(a, b, c)
+  .then(function(result) {
+    console.log("OK:", result);
+  }, function(err) {
+    console.log("Fail:", err);
+  });
+~~~
+
+
 What does it solve
 ------------------
 
@@ -134,6 +211,9 @@ cat be a very cathartic exercise.
 
 Defer.js to the rescue! Simply decorate your function and it'll take care of 
 that for you.
+
+Instead of writing `x = function(a,b,c,done) { ... }`,
+use `x = defer(function(a,b,c,next) { ...  });`.
 
 ~~~ js
 var defer = require('defer');
@@ -562,6 +642,10 @@ getArticles(function(err, articles) {
     console.log("Articles:", articles);
 });
 ~~~
+
+### defer.promise
+
+The provider function.
 
 [when.js]: https://github.com/cujojs/when
 [q.js]: https://github.com/kriskowal/q
