@@ -39,7 +39,7 @@
       else {
         if (!defer.promise) throw new Error("No promises support (defer.promise not defined)");
         var p = {};
-        var promise = defer.promise(function(_ok, _err) { p.ok = _ok; p.err = _err; });
+        var promise = new defer.promise(function(_ok, _err) { p.ok = _ok; p.err = _err; });
         next.ok = function() { p.ok.apply(promise, arguments); };
         next.err = function(err) { p.err.call(promise, errify(err)); };
         immediate(invoke);

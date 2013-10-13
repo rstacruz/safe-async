@@ -2,6 +2,12 @@
 
 Standardizes the interface for async APIs.
 
+What it is
+----------
+
+It helps you write great async API. It catches errors for you. IT makes your 
+async work as promises or callback-functions.
+
 When to use it
 --------------
 
@@ -25,6 +31,17 @@ models that do things asynchronously.
 
  * __Portable.__ 
  Works for Node.js and the browser. It's also pretty damn small (~70loc).
+
+What it's not
+-------------
+
+ * It's not [async.js], because that lets you work many async callback-functions 
+ in parallel (among other things).
+
+ * It's not [q.js], which helps you write promise functions and work with many 
+ promise objects.
+
+ * It's not [when.js], which kinda does that too.
 
 What does it solve
 ------------------
@@ -227,6 +244,21 @@ getFirstPost = defer(function(next) {
     next(post);
   }));
 });
+~~~
+
+Working with promises
+---------------------
+
+Get Promise support by tying it in with your favorite Promise library. You can 
+swap it out by changing `defer.promise` to the provider of [when.js], [q.js], 
+     [promise.js] or anything else that follows their API.
+
+~~~ js
+var defer = require('defer');
+
+defer.promise = require('q').promise;
+defer.promise = require('when').promise;
+defer.promise = require('promise');
 ~~~
 
 ### Call it with promises or not
@@ -530,3 +562,7 @@ getArticles(function(err, articles) {
     console.log("Articles:", articles);
 });
 ~~~
+
+[when.js]: https://github.com/cujojs/when
+[q.js]: https://github.com/kriskowal/q
+[promise.js]: https://github.com/then/promise
