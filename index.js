@@ -1,3 +1,5 @@
+var errify;
+
 /**
  * Promise/async shim.
  */
@@ -20,13 +22,12 @@ var defer = module.exports = function(fn) {
     //
     var next = function(result) {
       var _self = this;
-      if (result instanceof Function) {
+      if (result instanceof Function)
         return next.wrap.call(_self, result);
-      } else if (result instanceof Error) {
-        next.err.call(_self, errify(result));
-      } else {
+      else if (result instanceof Error)
+        next.err.call(_self, result);
+      else
         next.ok.apply(_self, arguments);
-      }
     };
 
     // Wrap
@@ -35,7 +36,7 @@ var defer = module.exports = function(fn) {
         try {
           fn.apply(this, arguments);
         } catch (err) {
-          next.err.call(this, errify(err));
+          next.err.call(this, err);
         }
       };
     };
@@ -49,7 +50,7 @@ var defer = module.exports = function(fn) {
       try {
         var result = fn.apply(self, args.concat([next]));
         if (result && result.then)
-          result.then(next.ok, function(err) { return next.err.call(this, errify(err)); });
+          result.then(next.ok, function(err) { return next.err.call(this, err); });
         return result;
       } catch (err) {
         next.err.call(this, err);
@@ -62,7 +63,7 @@ var defer = module.exports = function(fn) {
     if (typeof last === 'function') {
       var callback = last;
       next.err = function(err) {
-        callback.call(self, err); };
+        callback.call(self, errify(err)); };
       next.ok = function(result) {
         callback.apply(self, [undefined].concat([].slice.call(arguments))); };
       return invoke();
@@ -76,7 +77,7 @@ var defer = module.exports = function(fn) {
       var promise = defer.promise(function(_ok, _err) { p.ok = _ok; p.err = _err; });
 
       next.ok = function() { p.ok.apply(promise, arguments); };
-      next.err = function(err) { p.err.call(promise, err); };
+      next.err = function(err) { p.err.call(promise, errify(err)); };
 
       immediate(invoke);
       return promise;
@@ -96,6 +97,10 @@ function immediate(fn) {
   else setTimeout(fn, 0);
 }
 
-function errify(e) {
+/**
+ * Converts a function into error.
+ */
+
+errify = defer.errify = function(e) {
   return (e instanceof Error) ? e : new Error(e);
-}
+};
