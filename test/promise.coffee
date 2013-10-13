@@ -4,7 +4,29 @@ Q = require 'q'
 fn = null
 
 # ----------------------------------------------------------------------------
-r = ->
+r = (options={}) ->
+  describe 'promises', ->
+    it 'progress', (done) ->
+      promise = Q.promise (ok, err, prog) ->
+        prog "100"
+        ok()
+
+      fn = defer -> promise
+
+      fn().then null, null, (n) ->
+        expect(n).eql "100"
+      fn().then done
+
+    if options.progress
+      it 'progress via callback', (done) ->
+        fn = defer (next) ->
+          expect(next.progress).function
+          next.progress "100"
+
+        fn().then null, null, (n) ->
+          expect(n).eql "100"
+          done()
+
   describe 'async as promise', ->
     it 'should return a promise', ->
       fn = defer (next) ->
@@ -65,20 +87,20 @@ r = ->
 describe 'q.js', ->
   beforeEach -> defer.promise = require('q').promise
   afterEach ->  defer.promise = undefined
-  r.apply this
+  r progress: true
 
 describe 'when.js', ->
   beforeEach -> defer.promise = require('when').promise
   afterEach ->  defer.promise = undefined
-  r.apply this
+  r progress: true
 
 describe 'promise.js', ->
   beforeEach -> defer.promise = require('promise')
   afterEach ->  defer.promise = undefined
-  r.apply this
+  r()
 
 describe 'rsvp.js', ->
   beforeEach -> defer.promise = require('rsvp').Promise
   afterEach ->  defer.promise = undefined
-  r.apply this
+  r()
 

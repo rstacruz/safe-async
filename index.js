@@ -39,9 +39,10 @@
       else {
         if (!defer.promise) throw new Error("No promises support (defer.promise not defined)");
         var p = {};
-        var promise = new defer.promise(function(_ok, _err) { p.ok = _ok; p.err = _err; });
+        var promise = new defer.promise(function(_ok, _err, _progress) { p.ok = _ok; p.err = _err; p.progress = _progress; });
         next.ok = function() { p.ok.apply(promise, arguments); };
         next.err = function(err) { p.err.call(promise, errify(err)); };
+        next.progress = function() { p.progress.apply(promise, arguments); };
         immediate(invoke);
         return promise;
       }
@@ -102,7 +103,10 @@
       try {
         var result = fn.apply(self, args.concat([next]));
         if (result && result.then)
-          result.then(next.ok, function(err) { return next.err.call(this, err); });
+          result.then(
+            next.ok,
+            function(err) { return next.err.call(this, err); },
+            next.progress);
         return result;
       } catch (err) {
         next.err.call(this, err);
