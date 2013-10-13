@@ -12,17 +12,19 @@ Hate writing async functions? I used to, too. Defer.js solves many headaches
 with writing asynchronous functions. It's great for writing API libraries or
 models that do things asynchronously.
 
- * __Ensures proper error propagation.__ No need for lots of try/catch blocks: 
- those will be taken care of for you.
+ * __Ensures proper error propagation.__ 
+ No need for lots of try/catch blocks: those will be taken care of for you.
 
- * __Ensures that errors are proper `Error` objects.__ Any errors thrown by your 
-async functions should be standard error objects. ([info](#next-err))
+ * __Ensures that errors are proper `Error` objects.__ 
+  Any errors thrown by your async functions should be standard error objects.  
+([info](#next-err))
 
- * __Promises or callbacks.__ It makes your functions work with both async 
- callbacks or promises with no extra code.
+ * __Promises or callbacks.__ 
+ It makes your functions work with both async callbacks or promises with no 
+ extra code.
 
- * __Portable.__ Works for Node.js and the browser. It's also pretty damn small 
- (~70loc).
+ * __Portable.__ 
+ Works for Node.js and the browser. It's also pretty damn small (~70loc).
 
 What does it solve
 ------------------
@@ -33,7 +35,7 @@ Perhaps the most inelegant thing about asynchronous JavaScript callbacks is
 error handling. Or rather: *proper* error handling.
 
 To illustrate how this can get particularly hairy, let's start with an innocent 
-function (`getFeed()`) that expects a Node-style callback:
+function that expects a Node-style callback:
 
 ~~~ js
 /**
@@ -82,14 +84,16 @@ getFeed(john, function(err, data) {
   if (err) console.log("Error:", err);
   console.log("John's entries:", data);
 });
+~~~
 
+~~~ js
 TypeError: Cannot call method 'toLowerCase' of null
   at feed.js:5 [var id = user.name.toLowerCase();]
 ~~~
 
-Gasp! Shouldn't this error have been thrown? Of course not--we never put any 
-provisions to catch it. No problem, we can rewrite that `getFeed()` function to 
-put its contents in a try/catch block.
+Gasp! Shouldn't this error have been caught and handled? Of course not--we never 
+put any provisions to catch it. No problem, we can rewrite that `getFeed()` 
+function to put its contents in a try/catch block.
 
 ~~~ js
 getFeed = function(user, done) {
@@ -139,7 +143,6 @@ getFeed(john, function(err, data) {
   if (err) {
     console.log("Uh oh! Caught an error.");
     console.log("=> "+ err);
-
     return;
   }
   console.log("John's entries:", data);
@@ -182,8 +185,8 @@ getFirstPost(function(title) {
 });
 ~~~
 
-In certain cirtumstances, this will get you an unexpected result. What if 
-`data.entries` is empty? You'll get this error:
+This will get you an unexpected result in some circumstances. What if 
+`data.entries` is empty?
 
 ~~~ js
 TypeError: Cannot read property 'title' of undefined
@@ -192,7 +195,8 @@ TypeError: Cannot read property 'title' of undefined
 
 Uh oh: we have an error that happens in an async callback. We need to catch that 
 too. Without defer.js, we may need to do 2 try/catch blocks: one for inside the 
-function body, and another for inside the callback function's body:
+function body, and another for inside the callback function's body. This is 
+borderline asinine.
 
 ~~~ js
 getFirstPost = function(next) {
@@ -294,7 +298,7 @@ When this new function is invoked (`getName` in the example below), it runs `fn`
 with the same arguments (`[a]` below), except with the last callback replaced 
 with a new callback called [next()](#next).
 
-When `next()` is invoked inside `[a]`, the callback given (`[b]`) will be ran.
+When `next()` is invoked inside `[a]`, the callback given (`[b]`) will run.
 ([next()](#next) is described in detail later below.)
 
 ~~~ js
