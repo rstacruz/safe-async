@@ -83,6 +83,15 @@ describe 'async as async', ->
       expect(data).undefined
       done()
 
+  it 'this', (done) ->
+    a = { name: "Hello" }
+
+    a.fn = defer (next) ->
+      expect(@name).eql "Hello"
+      next()
+
+    a.fn(done)
+
 # ----------------------------------------------------------------------------
 describe 'async as promise', ->
   it 'should return a promise', ->
