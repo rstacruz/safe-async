@@ -5,11 +5,11 @@ Async helper.
 When to use it
 --------------
 
-**Protip:** Any time you're writing a function that takes a callback, use 
+**Protip:** Any time you're writing a function that takes a callback, use
 defer.js.
 
-Hate writing async functions? I used to, too. Defer.js solves many headaches 
-with writing asynchronous functions. It's great for writing API libraries or 
+Hate writing async functions? I used to, too. Defer.js solves many headaches
+with writing asynchronous functions. It's great for writing API libraries or
 models that do things asynchronously.
 
  * It ensures proper error propagation.
@@ -222,6 +222,7 @@ getFirstPost = defer(function(next) {
     next(post);
   }));
 });
+~~~
 
 ### Call it with promises or not
 
@@ -278,6 +279,7 @@ getFirstPost()
 .then(function(data) {
   // used as a promise
 });
+~~~
 
 API
 ---
@@ -291,7 +293,7 @@ When this new function is invoked (`getName` in the example below), it runs `fn`
 with the same arguments (`[a]` below), except with the last callback replaced 
 with a new callback called [next()](#next).
 
-When `next()` is invoked inside `[a]`, the callback given (`[b]`) will be ran.  
+When `next()` is invoked inside `[a]`, the callback given (`[b]`) will be ran.
 ([next()](#next) is described in detail later below.)
 
 ~~~ js
@@ -304,8 +306,8 @@ getName(function(err, name) { // [b]
 });
 ~~~
 
-All arguments will be passed through. In the example below, the names passed 
-onto `man` and `companion` are passed through as usual, but the last argument (a 
+All arguments will be passed through. In the example below, the names passed
+onto `man` and `companion` are passed through as usual, but the last argument (a
     function) has been changed to `next`.
 
 ~~~ js
@@ -315,7 +317,8 @@ getMessage = defer(function(man, companion, next) {
 });
 
 getMessage("Doctor", "Donna", function(err, msg) {
-  alert(msg); //=> "How's it goin, Doctor & Donna"
+  alert(msg);
+  /* => "How's it goin, Doctor & Donna" */
 });
 ~~~
 
@@ -352,7 +355,7 @@ getName(function(err, name) {
 
 #### Returning errors
 
-You may also return errors. An error anything that is an instance of `Error`, 
+You may also return errors. An error anything that is an instance of `Error`,
     and will be treated differently from non-errors.
 
 ~~~ js
@@ -369,9 +372,9 @@ getName(function(err, name) {
 
 #### next.ok() and next.err()
 
-Alternatively, you may also use [next.ok()](#next-ok) and 
-[next.err()](#next-err) if you prefer to be more explicit. `next.ok()` works the 
-same way as `next()`, while `next.err()` ensures that the given error is made 
+Alternatively, you may also use [next.ok()](#next-ok) and
+[next.err()](#next-err) if you prefer to be more explicit. `next.ok()` works the
+same way as `next()`, while `next.err()` ensures that the given error is made
 into an `Error` object.
 
 ~~~ js
@@ -390,7 +393,7 @@ getName(function(err, name) {
 });
 ~~~
 
-You don't need to do that, though: any errors you throw are treated the same 
+You don't need to do that, though: any errors you throw are treated the same
 way.
 
 ~~~ js
@@ -407,8 +410,8 @@ getName(function(err, name) {
 
 #### Wrapping other callbacks
 
-When `next()` is invoked with a function as an argument, it wraps ("decorates") 
-that function to ensure that any errors it produces is propagated properly. See 
+When `next()` is invoked with a function as an argument, it wraps ("decorates")
+that function to ensure that any errors it produces is propagated properly. See
 [next.wrap()](#next-wrap).
 
 ~~~ js
@@ -430,7 +433,7 @@ getArticles(function(err, articles) {
 
 #### With promises
 
-You can also return a from the function. Defer will automatically figure out 
+You can also return a from the function. Defer will automatically figure out
 what to do from that.
 
 ~~~ js
@@ -456,7 +459,7 @@ getFirstPost()
 .then(function(data) {
   // used as a promise
 });
-
+~~~
 
 ### next.ok()
 
@@ -497,13 +500,13 @@ getName(function(err, name) {
 
 ### next.wrap()
 
-Wraps a function ("decorates") to ensure that all errors it throws are 
+Wraps a function ("decorates") to ensure that all errors it throws are
 propagated properly.
 
-When `next()` is invoked with a function as an argument, it works the same way 
+When `next()` is invoked with a function as an argument, it works the same way
 as `next.wrap()`.
 
-In this example below, any errors happening within the function `[a]` will be 
+In this example below, any errors happening within the function `[a]` will be
 reported properly.
 
 ~~~ js
