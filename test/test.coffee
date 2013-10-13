@@ -58,6 +58,31 @@ describe 'async as async', ->
 
     expect(fn(->)).eql 42
 
+  it '.ok', (done) ->
+    fn = defer (next) -> next.ok 42
+    fn (err, data) ->
+      throw err if err
+      expect(data).eql 42
+      done()
+
+  it '.err', (done) ->
+    fn = defer (next) -> next.err "Oops"
+    fn (err, data) ->
+      expect(err).instanceof Error
+      expect(err.message).eql "Oops"
+      expect(data).undefined
+      done()
+
+  it '.wrap', (done) ->
+    fn = defer (next) ->
+      setTimeout (next.wrap -> a.b.c), 0
+
+    fn (err, data) ->
+      expect(err).instanceof Error
+      expect(err.message).match /a is not defined/
+      expect(data).undefined
+      done()
+
 # ----------------------------------------------------------------------------
 describe 'async as promise', ->
   it 'should return a promise', ->
@@ -72,6 +97,28 @@ describe 'async as promise', ->
 
     fn("hello").then (message) ->
       expect(message).eql "hi"
+      done()
+
+  it '.ok', (done) ->
+    fn = defer (next) -> next.ok 42
+    fn().then (data) ->
+      expect(data).eql 42
+      done()
+
+  it '.err', (done) ->
+    fn = defer (next) -> next.err "Oops"
+    fn().then null, (err) ->
+      expect(err).instanceof Error
+      expect(err.message).eql "Oops"
+      done()
+
+  it '.wrap', (done) ->
+    fn = defer (next) ->
+      setTimeout (next.wrap -> a.b.c), 0
+
+    fn().then null, (err) ->
+      expect(err).instanceof Error
+      expect(err.message).match /a is not defined/
       done()
 
 # ----------------------------------------------------------------------------
