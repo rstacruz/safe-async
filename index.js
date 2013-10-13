@@ -21,18 +21,23 @@ var defer = module.exports = function(fn) {
     var next = function(result) {
       var _self = this;
       if (result instanceof Function) {
-        return function() {
-          try {
-            result.apply(_self, arguments);
-          } catch (err) {
-            next.err.call(this, errify(err));
-          }
-        };
+        return next.wrap.call(_self, result);
       } else if (result instanceof Error) {
         next.err.call(_self, errify(result));
       } else {
         next.ok.apply(_self, arguments);
       }
+    };
+
+    // Wrap
+    next.wrap = function(fn) {
+      return function() {
+        try {
+          fn.apply(this, arguments);
+        } catch (err) {
+          next.err.call(this, errify(err));
+        }
+      };
     };
 
     // This function will invoke the given `fn`, swapping out the last arg for
