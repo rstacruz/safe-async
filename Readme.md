@@ -19,6 +19,9 @@ models that do things asynchronously.
 
  * It's pretty damn small (~70loc).
 
+What does it solve
+------------------
+
 ### Error catching
 
 Perhaps the most inelegant thing about asynchronous JavaScript callbacks is 
@@ -32,7 +35,7 @@ function (`getFeed()`) that expects a Node-style callback:
  * Fetch the feed user (via AJAX) for a given `user`.
  */
 getFeed = function(user, done) {
-  var id = user.account.id;
+  var id = user.name.toLowerCase();
 
   $.get('/user/'+id+'/feeds.json', function(data) {
     if (data.entries)
@@ -51,7 +54,7 @@ good idea. Let's try to put it to test:
 ~~~ js
 var john = {
   email: "john@gmail.com",
-  account: { id: 189238, name: "john_m" },
+  name: "John"
 };
 
 getFeed(john, function(err, data) {
@@ -65,32 +68,43 @@ the data otherwise. That's got to work right! Until it does something
 unfortunately unexpected:
 
 ~~~ js
-var john = null; // <- uh oh
+var john = {
+  email: "john@gmail.com",
+  name: null  // <- uh oh
+}; 
 
-getFeed(john, function(err, data) { /*...*/ });
+getFeed(john, function(err, data) {
+  if (err) console.log("Error:", err);
+  console.log("John's entries:", data);
+});
 
-TypeError: Cannot read property 'id' of undefined
-  at feed.js:2 [var id = user.account.id;]
+TypeError: Cannot call method 'toLowerCase' of null
+  at feed.js:5 [var id = user.name.toLowerCase();]
 ~~~
 
 Gasp! Shouldn't this error have been thrown? Of course not--we never put any 
 provisions to catch it. No problem, we can rewrite that `getFeed()` function to 
-put its contents in a try/catch block like so.
+put its contents in a try/catch block.
 
 ~~~ js
 getFeed = function(user, done) {
   try {
-    /*
-     * ...the rest of your function body here
-     */
-  } catch (e) {
-    done(e);
+    var id = user.name.toLowerCase();
+
+    $.get('/user/'+id+'/feeds.json', function(data) {
+      if (data.entries)
+        done(null, data);
+      else
+        done("No such user");
+    });
+  } catch (err) {
+    done(err);
   }
 });
 ~~~
 
-This works as expected, but wrapping all your async functions in try/catch 
-blocks cat be a very cathartic exercise.
+This works as expected, but wrapping all your functions in a try/catch blocks 
+cat be a very cathartic exercise.
 
 Defer.js to the rescue! Simply decorate your function and it'll take care of 
 that for you.
@@ -100,7 +114,7 @@ var defer = require('defer');
 
 // Wrap your function inside `defer(...)`.
 getFeed = defer(function(user, next) {
-  var id = user.account.id;
+  var id = user.name.toLowerCase();
 
   $.get('/user/'+id+'/feeds.json', function(data) {
     if (data.entries)
@@ -131,7 +145,7 @@ This now catches the error in `err` as we expected.
 
 ~~~
 Uh oh! Caught an error.
-=> Cannot read property 'id' of undefined
+=> TypeError: Cannot call method 'toLowerCase' of null
 ~~~
 
 ### Deep error catching
@@ -228,3 +242,38 @@ getFirstPost(function(title) {
 });
 ~~~
 
+API
+---
+
+### defer(fn)
+
+It creates a function derived from `fn`, enhanced with defer superpowers.
+
+When this new function is invoked, it runs `fn` with the same arguments, except 
+with the last callback replaced with a new callback called `next()` (see below).
+
+Example:
+
+~~~ js
+getName = defer(function(next) {
+  next("John");
+});
+~~~
+
+Any errors thrown inside `fn` will be passed the callback.
+
+~~~ js
+getName = defer(function(next) {
+  var name = user.name.toUpperCase();
+  next("John");
+});
+~~~
+
+
+### next()
+
+### next.ok()
+
+### next.err()
+
+### next.wrap()
