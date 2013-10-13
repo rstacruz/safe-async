@@ -14,8 +14,12 @@ models that do things asynchronously.
 
  * It ensures proper error propagation.
 
+ * Ensures that errors are proper `Error` objects.
+
  * It makes your function work with async callbacks or promises with no extra 
  code.
+
+ * Works for Node.js and the browser.
 
  * It's pretty damn small (~70loc).
 
@@ -242,21 +246,76 @@ getFirstPost(function(title) {
 });
 ~~~
 
+### Use it to run promises
+
+In the real world, you may be using libraries that only support Promises, and 
+have it play safe with libraries that use traditional callbacks.
+
+Defer.js helps you with this. Any defer-powered function you write can use 
+promises. Instead of using the `next()` callback, make it return a function: 
+defer automatically knows what to do.
+
+~~~ js
+getFirstPost = defer(function() {
+  return $.get("/posts.json")
+  .then(function(data) {
+    return data.entries[0];
+  })
+  .then(function(post) {
+    return post.title;
+  });
+});
+~~~
+
+You now get a function that can be used as a promise or an async function.
+
+~~~ js
+getFirstPost(function(err, data) {
+  // used with a callback
+});
+
+getFirstPost()
+.then(function(data) {
+  // used as a promise
+});
+
 API
 ---
 
 ### defer(fn)
 
-It creates a function derived from `fn`, enhanced with defer superpowers.
+A decorator that creates a function derived from `fn`, enhanced with defer.js
+superpowers.
 
-When this new function is invoked, it runs `fn` with the same arguments, except 
-with the last callback replaced with a new callback called `next()` (see below).
+When this new function is invoked (`getName` in the example below), it runs `fn` 
+with the same arguments (`[a]` below), except with the last callback replaced 
+with a new callback called [next()](#next).
 
-Example:
+When `next()` is invoked inside `[a]`, the callback given (`[b]`) will be ran.  
+([next()](#next) is described in detail later below.)
 
 ~~~ js
-getName = defer(function(next) {
+getName = defer(function(next) { // [a]
   next("John");
+});
+
+getName(function(err, name) { // [b]
+  alert("Hey " + name);
+});
+~~~
+
+All arguments will be passed through. In the example below, the names passed 
+onto `man` and `companion` are passed through as usual, but the last argument (a 
+    function) has been changed to `next`.
+
+~~~ js
+getMessage = defer(function(man, companion, next) {
+  var msg = "How's it goin, " + man + " & " + companion);
+  next(msg);
+});
+
+getMessage("Doctor", "Donna", function(err, msg) {
+  alert(msg); //=> "How's it goin, Doctor & Donna"
 });
 ~~~
 
@@ -264,16 +323,202 @@ Any errors thrown inside `fn` will be passed the callback.
 
 ~~~ js
 getName = defer(function(next) {
-  var name = user.name.toUpperCase();
+  var name = user.toUpperCase();
   next("John");
+});
+
+getName(function(err, data) {
+  if (err) {
+    /* err.message === "Cannot call method 'toUpperCase' of undefined" */
+  }
 });
 ~~~
 
-
 ### next()
+
+Returns an error, or a result, to the callback.
+
+You can return a result by calling `next(result)`.
+
+~~~ js
+getName = defer(function(next) {
+  next("John");
+});
+
+getName(function(err, name) {
+  alert("Hey " + name);
+});
+~~~
+
+#### Returning errors
+
+You may also return errors. An error anything that is an instance of `Error`, 
+    and will be treated differently from non-errors.
+
+~~~ js
+getName = defer(function(next) {
+  next(new Error("Something happened"));
+}
+
+getName(function(err, name) {
+  if (err) {
+    alert(err.message); //=> "Something happened"
+  }
+});
+~~~
+
+#### next.ok() and next.err()
+
+Alternatively, you may also use [next.ok()](#next-ok) and 
+[next.err()](#next-err) if you prefer to be more explicit. `next.ok()` works the 
+same way as `next()`, while `next.err()` ensures that the given error is made 
+into an `Error` object.
+
+~~~ js
+getName = defer(function(next) {
+  if (user.name) {
+    next.ok(user.name);
+  } else {
+    next.err("User has no name");
+  }
+}
+
+getName(function(err, name) {
+  if (err) {
+    alert(err.message); //=> "Something happened"
+  }
+});
+~~~
+
+You don't need to do that, though: any errors you throw are treated the same 
+way.
+
+~~~ js
+getName = defer(function(next) {
+  throw new Error("Something happened");
+}
+
+getName(function(err, name) {
+  if (err) {
+    alert(err.message); //=> "Something happened"
+  }
+});
+~~~
+
+#### Wrapping other callbacks
+
+When `next()` is invoked with a function as an argument, it wraps ("decorates") 
+that function to ensure that any errors it produces is propagated properly. See 
+[next.wrap()](#next-wrap).
+
+~~~ js
+getArticles = defer(function(next) {
+  $.get('/articles.json', next(function(data) {
+    var articles = data.articles;
+    next(articles);
+  }));
+};
+
+getArticles(function(err, articles) {
+  if (err)
+    console.error("Error:", err);
+    /*=> "TypeError: cannot read property 'articles' of undefined" */
+  else
+    console.log("Articles:", articles);
+});
+~~~
+
+#### With promises
+
+You can also return a from the function. Defer will automatically figure out 
+what to do from that.
+
+~~~ js
+getFirstPost = defer(function() {
+  return $.get("/posts.json")
+  .then(function(data) {
+    return data.entries[0];
+  })
+  .then(function(post) {
+    return post.title;
+  });
+});
+~~~
+
+You now get a function that can be used as a promise or an async function.
+
+~~~ js
+getFirstPost(function(err, data) {
+  // used with a callback
+});
+
+getFirstPost()
+.then(function(data) {
+  // used as a promise
+});
+
 
 ### next.ok()
 
+Returns a result. See [next.err()](#next-err) for examples.
+
 ### next.err()
 
+Returns an error.
+
+~~~ js
+getName = defer(function(next) {
+  if (user.name)
+    next.ok(user.name);
+  else
+    next.err("User has no name");
+}
+~~~
+
+#### Coercion
+
+It coerces anything given to it as an object of `Error`, if it isn't yet.
+
+~~~ js
+getName = defer(function(next) {
+  if (user.name)
+    next.ok(user.name);
+  else
+    next.err("User has no name");
+}
+
+getName(function(err, name) {
+  if (err) {
+    console.log(err.constructor); //=> "Error"
+    console.log(err.message);     //=> "User has no name"
+  }
+});
+~~~
+
 ### next.wrap()
+
+Wraps a function ("decorates") to ensure that all errors it throws are 
+propagated properly.
+
+When `next()` is invoked with a function as an argument, it works the same way 
+as `next.wrap()`.
+
+In this example below, any errors happening within the function `[a]` will be 
+reported properly.
+
+~~~ js
+getArticles = defer(function(next) {
+  $.get('/articles.json', next.wrap(function(data) { //[a]
+    var articles = data.articles;
+    next(articles);
+  }));
+};
+
+getArticles(function(err, articles) {
+  if (err)
+    console.error("Error:", err);
+    /*=> "TypeError: cannot read property 'articles' of undefined" */
+  else
+    console.log("Articles:", articles);
+});
+~~~
