@@ -111,10 +111,10 @@
   }
 
   /**
-   * This is the promise creator.
+   * This is the promise provider.
    */
 
-  defer.promise = require('q').promise;
+  defer.promise = null;
 
   /**
    * Converts a function into error.

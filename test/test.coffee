@@ -94,6 +94,9 @@ describe 'async as async', ->
 
 # ----------------------------------------------------------------------------
 describe 'async as promise', ->
+  beforeEach -> defer.promise = require('q').promise
+  afterEach ->  defer.promise = undefined
+
   it 'should return a promise', ->
     fn = defer (next) ->
       next("hi")
@@ -154,6 +157,9 @@ describe 'promise as async', ->
 
 # ----------------------------------------------------------------------------
 describe 'promise as promise', ->
+  beforeEach -> defer.promise = require('q').promise
+  afterEach ->  defer.promise = undefined
+
   it 'should work with ok', (done) ->
     fn = defer ->
       Q.promise (ok, fail) ->
