@@ -38,10 +38,10 @@ What it's not
  * It's not [async.js], because that lets you work many async callback-functions 
  in parallel (among other things).
 
- * It's not [q.js], which helps you write promise functions and work with many 
- promise objects.
-
- * It's not [when.js], which kinda does that too.
+ * It's not [q.js] or [when.js] or [rsvp.js] or [promise.js],
+which helps you write promise functions and work with many promise objects.
+However, you can hook up defer.js to use any of those to generate
+promises.
 
 What does it solve
 ------------------
@@ -566,3 +566,4 @@ getArticles(function(err, articles) {
 [when.js]: https://github.com/cujojs/when
 [q.js]: https://github.com/kriskowal/q
 [promise.js]: https://github.com/then/promise
+[rsvp.js]: https://github.com/
