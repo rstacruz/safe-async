@@ -1,12 +1,12 @@
 # Defer.js
 
-Async helper.
+Standardizes the interface for async APIs.
 
 When to use it
 --------------
 
 **Protip:** Any time you're writing a function that takes a callback, use
-defer.js.
+defer.js. Yes. All of them.
 
 Hate writing async functions? I used to, too. Defer.js solves many headaches
 with writing asynchronous functions. It's great for writing API libraries or
