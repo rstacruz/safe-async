@@ -1,12 +1,14 @@
 {
   "name": "___",
   "description": "",
-  "keywords": [""],
+  "keywords": [
+    ""
+  ],
   "author": "Rico Sta. Cruz <hi@ricostacruz.com>",
   "version": "0.1.0",
   "repository": {
-     "type": "git",
-     "url": "https://github.com/rstacruz/___.git"
+    "type": "git",
+    "url": "https://github.com/rstacruz/___.git"
   },
   "main": "index",
   "scripts": {
@@ -16,7 +18,11 @@
     "mocha": "*",
     "chai": "*",
     "coffee-script": "*",
-    "sinon": "*"
+    "sinon": "*",
+    "q": "0.9.x",
+    "when": "2.x.x",
+    "promise": "3.x.x",
+    "rsvp": "2.x.x"
   },
   "license": "MIT"
 }
