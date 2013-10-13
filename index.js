@@ -8,17 +8,13 @@ var defer = module.exports = function(fn) {
     var self = this;
     var last = arguments[arguments.length-1];
 
-    // These are handlers that will be populated, depending on whether it was
-    // invoked async-style or promise-style.
-    var ok, fail;
-
     // Create the new callback.
     // This is an overloaded function:
     //
-    //   - When called with an `Error` instance, it reports it to the "fail" handler.
+    //   - When called with an `Error` instance, it reports it to the "err" handler.
     //
     //   - When called with a function, it wraps that in a try/catch block,
-    //     and reports any errors back to the fail handler.
+    //     and reports any errors back to the err handler.
     //
     //   - Everything else is reported to the "ok" handler.
     //
@@ -29,29 +25,29 @@ var defer = module.exports = function(fn) {
           try {
             result.apply(_self, arguments);
           } catch (err) {
-            fail(errify(err));
+            next.err.call(this, errify(err));
           }
         };
       } else if (result instanceof Error) {
-        fail.call(_self, errify(result));
+        next.err.call(_self, errify(result));
       } else {
-        ok.apply(_self, arguments);
+        next.ok.apply(_self, arguments);
       }
     };
 
     // This function will invoke the given `fn`, swapping out the last arg for
     // a new callback. If `fn` returns a promise, treat it accordingly. If `fn`
-    // throws an error, report it to the fail handler.
+    // throws an error, report it to the err handler.
     //
     var args = [].slice.call(arguments, 0, arguments.length-1);
     var invoke = function() {
       try {
         var result = fn.apply(self, args.concat([next]));
         if (result && result.then)
-          result.then(ok, function(err) { return fail(errify(err)); });
+          result.then(next.ok, function(err) { return next.err.call(this, errify(err)); });
         return result;
       } catch (err) {
-        fail(err);
+        next.err.call(this, err);
       }
     };
 
@@ -60,9 +56,9 @@ var defer = module.exports = function(fn) {
     //
     if (typeof last === 'function') {
       var callback = last;
-      fail = function(err) {
+      next.err = function(err) {
         callback.call(self, err); };
-      ok = function(result) {
+      next.ok = function(result) {
         callback.apply(self, [undefined].concat([].slice.call(arguments))); };
       return invoke();
     }
@@ -72,10 +68,10 @@ var defer = module.exports = function(fn) {
     //
     else {
       var p = {};
-      var promise = defer.promise(function(_ok, _fail) { p.ok = _ok; p.fail = _fail; });
+      var promise = defer.promise(function(_ok, _err) { p.ok = _ok; p.err = _err; });
 
-      ok = function() { p.ok.apply(promise, arguments); };
-      fail = function(err) { p.fail.call(promise, err); };
+      next.ok = function() { p.ok.apply(promise, arguments); };
+      next.err = function(err) { p.err.call(promise, err); };
 
       immediate(invoke);
       return promise;
