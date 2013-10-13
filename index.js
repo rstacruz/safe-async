@@ -55,6 +55,7 @@
    * This creates a function `wrap` that taken an argument `fn`, executes it, and
    * passes the errors to `next.err`.
    */
+
   function _wrap(next) {
     return function(fn) {
       return function() {
@@ -76,6 +77,7 @@
    *
    *   - Everything else is ran through `next.ok(...)`.
    */
+
   function _next() {
     return function next(result) {
       var _self = this;
@@ -98,6 +100,7 @@
    * This function will invoke the given `fn`, swapping out the last arg for
    * a the callback `next`.
    */
+
   function _invoke(fn, args, next, self) {
     return function invoke() {
       try {
