@@ -53,22 +53,6 @@
   };
 
   /**
-   * Creates a `wrap` decorator function.
-   *
-   * This creates a function `wrap` that taken an argument `fn`, executes it, and
-   * passes the errors to `next.err`.
-   */
-
-  function _wrap(next) {
-    return function(fn) {
-      return function() {
-        try { fn.apply(this, arguments); }
-        catch (e) { next.err.call(this, e); }
-      };
-    };
-  }
-
-  /**
    * Creates a `next` callback and returns it.
    *
    * This callback will delegate to `next.wrap()`, `next.ok()`, and `next.err()`
@@ -84,6 +68,22 @@
   function _next() {
     return function next(result) {
       next.ok.apply(this, arguments);
+    };
+  }
+
+  /**
+   * Creates a `wrap` decorator function.
+   *
+   * This creates a function `wrap` that taken an argument `fn`, executes it, and
+   * passes the errors to `next.err`.
+   */
+
+  function _wrap(next) {
+    return function(fn) {
+      return function() {
+        try { fn.apply(this, arguments); }
+        catch (e) { next.err.call(this, e); }
+      };
     };
   }
 
