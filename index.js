@@ -3,6 +3,8 @@
   else this.defer = factory();
 })(function() {
 
+  var immediate;
+
   /**
    * Promise/async shim.
    */
@@ -119,11 +121,10 @@
    * Helper: shim for setImmediate().
    */
 
-  function immediate(fn) {
-    if (typeof setImmediate === 'function') setImmediate(fn);
-    else if (typeof process === 'object') process.nextTick(fn);
-    else setTimeout(fn, 0);
-  }
+  immediate = 
+    (typeof setImmediate === 'function') ? setImmediate :
+    (typeof process === 'object') ? process.nextTick :
+    function(fn) { return setTimeout(fn, 0); };
 
   return defer;
 
