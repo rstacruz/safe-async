@@ -26,11 +26,10 @@
       // Used as an async:
       // The function was invoked with a callback at the `last` argument.
       if (typeof last === 'function') {
-        var callback = last;
         next.err = function(err) {
-          callback.call(self, err); };
+          last.call(self, err); };
         next.ok = function(result) {
-          callback.apply(self, [undefined].concat([].slice.call(arguments))); };
+          last.apply(self, [undefined].concat([].slice.call(arguments))); };
         next.progress = function() {};
         return invoke();
       }
