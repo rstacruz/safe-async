@@ -93,10 +93,7 @@
       try {
         var result = fn.apply(self, args.concat([next]));
         if (result && result.then)
-          result.then(
-            next.ok,
-            function(err) { return next.err.call(this, err); },
-            next.progress);
+          result.then(next.ok, next.err, next.progress);
         return result;
       } catch (err) {
         next.err.call(this, err);
