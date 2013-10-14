@@ -213,8 +213,7 @@ cat be a very cathartic exercise. Safe-async to the rescue! Simply wrap your
 function inside `safe(...)` and it'll take care of that for you.
 
 Instead of writing `x = function(a,b,c,done) { ... }`, use `x =
-safe(function(a,b,c,next) { ...  });`. Notice how errors are now simply
-`throw`n instead of being passed manually.
+safe(function(a,b,c,next) { ...  });`.
 
 ~~~ js
 var safe = require('safe-async');
@@ -227,7 +226,7 @@ getFeed = safe(function(user, next) {
     if (data.entries)
       next(data);
     else
-      throw "No such user";
+      next.err("No such user");
   });
 });
 ~~~
