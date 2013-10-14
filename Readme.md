@@ -655,17 +655,6 @@ app.get '/feed', safe (req, res, next) ->
     res.render "index"
 ~~~
 
-### [Mocha]
-
-Great for testing async too:
-
-~~~ coffee
-it 'should work', safe (next) ->
-  $.get '/xxx', safe.wrap (data) ->
-    expect(data).eql "hello"
-    next()
-~~~
-
 Acknowledgements
 ----------------
 
@@ -678,5 +667,3 @@ Acknowledgements
 [rsvp.js]: https://github.com/tildeio/rsvp.js
 [async.js]: https://github.com/caolan/async
 [Express]: http://expressjs.com
-[Mocha]: http://visionmedia.github.com/mocha
-
