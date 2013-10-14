@@ -587,4 +587,5 @@ The provider function.
 [when.js]: https://github.com/cujojs/when
 [q.js]: https://github.com/kriskowal/q
 [promise.js]: https://github.com/then/promise
-[rsvp.js]: https://github.com/
+[rsvp.js]: https://github.com/tildeio/rsvp.js
+[async.js]: https://github.com/caolan/async
