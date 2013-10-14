@@ -1,12 +1,9 @@
 # Defer.js
 
-Standardizes the interface for async APIs.
+**Standardizes the interface for async APIs.**
 
-What it is
-----------
-
-It helps you write great async API. It catches errors for you. IT makes your 
-async work as promises or callback-functions.
+It helps you write great async API. It catches errors for you. It makes your 
+async functions work with promises or callbacks.
 
 When to use it
 --------------
