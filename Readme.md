@@ -456,7 +456,8 @@ getName(function(err, data) {
 
 ### safe.promise
 
-The promise provider function. Safe-async allows
+The promise provider function that allows you to plug in the promise library of
+your choice.
 
 | Provider     | Code                                      |
 | --           | --                                        |

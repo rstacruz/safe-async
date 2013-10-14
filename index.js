@@ -53,16 +53,7 @@
   };
 
   /**
-   * Creates a `next` callback and returns it.
-   *
-   * This callback will delegate to `next.wrap()`, `next.ok()`, and `next.err()`
-   * depending on the arguments it was called with.
-   *
-   *   - When called with an `Error` instance, it reports it to `next.err(...)`.
-   *
-   *   - When called with a function, it runs it through `next.wrap(...)`.
-   *
-   *   - Everything else is ran through `next.ok(...)`.
+   * Creates a `next` callback function and returns it.
    */
 
   function _next() {
@@ -115,7 +106,18 @@
   }
 
   /**
-   * This is the promise provider.
+   * The promise provider function that allows you to plug in the promise
+   * library of your choice.
+   * 
+   * `safe.promise` is expected to be a function used to create promises in
+   * this manner below. Most promise libraries implement a function similar to
+   * this.
+   * 
+   *     var promise = safe.promise(function(ok, err, progress) {
+   *       ok("This returns a result");
+   *       err("This returns an error");
+   *       progress("This sends progress updates");
+   *     });
    */
 
   safe.promise = null;
