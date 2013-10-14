@@ -266,10 +266,10 @@ function to fetch some data, crunch it, and return it.
 /*
  * Fetches posts and gets the title of the first post.
  */
-getFirstPost = function(next) {
+getFirstPost = function(done) {
   $.get('/posts.json', function(data) {
     var post = data.entries[0].title;
-    next(null, post);
+    done(null, post);
   });
 };
 ~~~
