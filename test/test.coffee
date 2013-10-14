@@ -1,6 +1,6 @@
 require './setup'
 
-defer = require '..'
+safe = require '..'
 Q = require 'q'
 fn = null
 timeout = (fn) -> setTimeout fn, 20
@@ -8,7 +8,7 @@ timeout = (fn) -> setTimeout fn, 20
 # ----------------------------------------------------------------------------
 describe 'async as async', ->
   it 'should work as async', (done) ->
-    fn = defer (next) ->
+    fn = safe (next) ->
       next("hi")
 
     fn (e, message) ->
@@ -17,7 +17,7 @@ describe 'async as async', ->
       done()
 
   it 'should work as async with 1 argument', (done) ->
-    fn = defer (name, next) ->
+    fn = safe (name, next) ->
       next("hi #{name}")
 
     fn 'John', (e, message) ->
@@ -26,7 +26,7 @@ describe 'async as async', ->
       done()
 
   it 'should work as async with 2 args', (done) ->
-    fn = defer (dude, lady, next) ->
+    fn = safe (dude, lady, next) ->
       next("hi #{dude} and #{lady}")
 
     fn 'John', 'Ydoneo', (e, message) ->
@@ -36,7 +36,7 @@ describe 'async as async', ->
 
   it 'should work with error (throw)', (done) ->
     err = new Error("Uh oh")
-    fn = defer (next) -> throw err
+    fn = safe (next) -> throw err
 
     fn (e) ->
       expect(e).eql err
@@ -44,7 +44,7 @@ describe 'async as async', ->
 
   it 'should work with error (next.err)', (done) ->
     err = new Error("Uh oh")
-    fn = defer (next) -> next.err err
+    fn = safe (next) -> next.err err
 
     fn (e) ->
       expect(e).eql err
@@ -52,7 +52,7 @@ describe 'async as async', ->
 
   it 'throwing errors', (done) ->
     err = new Error("oops")
-    fn = defer (next) ->
+    fn = safe (next) ->
       throw err
 
     fn (e) ->
@@ -60,19 +60,19 @@ describe 'async as async', ->
       done()
 
   it 'return values', ->
-    fn = defer (next) -> 42
+    fn = safe (next) -> 42
 
     expect(fn(->)).eql 42
 
   it '.ok', (done) ->
-    fn = defer (next) -> next.ok 42
+    fn = safe (next) -> next.ok 42
     fn (err, data) ->
       throw err if err
       expect(data).eql 42
       done()
 
   it '.err', (done) ->
-    fn = defer (next) -> next.err new Error("Oops")
+    fn = safe (next) -> next.err new Error("Oops")
     fn (err, data) ->
       expect(err).instanceof Error
       expect(err.message).eql "Oops"
@@ -80,7 +80,7 @@ describe 'async as async', ->
       done()
 
   it '.wrap', (done) ->
-    fn = defer (next) ->
+    fn = safe (next) ->
       setTimeout (next.wrap -> a.b.c), 0
 
     fn (err, data) ->
@@ -92,7 +92,7 @@ describe 'async as async', ->
   it 'this', (done) ->
     a = { name: "Hello" }
 
-    a.fn = defer (next) ->
+    a.fn = safe (next) ->
       expect(@name).eql "Hello"
       next()
 
@@ -101,7 +101,7 @@ describe 'async as async', ->
 # ----------------------------------------------------------------------------
 describe 'promise as async', ->
   it 'should work with ok', (done) ->
-    fn = defer ->
+    fn = safe ->
       Q.promise (ok, fail) ->
         ok "hi"
 
@@ -111,7 +111,7 @@ describe 'promise as async', ->
       done()
 
   it 'should work with fail', (done) ->
-    fn = defer ->
+    fn = safe ->
       Q.promise (ok, fail) ->
         fail "oops"
 
@@ -122,7 +122,7 @@ describe 'promise as async', ->
 # ----------------------------------------------------------------------------
 describe 'error catching', ->
   it 'should work', (done) ->
-    fn = defer (next) ->
+    fn = safe (next) ->
       timeout next.wrap ->
         throw new Error("Hi")
 

@@ -1,6 +1,6 @@
 (function(factory) {
   if (typeof module !== 'undefined') module.exports = factory();
-  else this.defer = factory();
+  else this.safe = factory();
 })(function() {
 
   var immediate;
@@ -9,7 +9,7 @@
    * Promise/async shim.
    */
 
-  var defer = function(fn) {
+  var safe = function(fn) {
     // Return a function that decorates the original `fn`.
     return function() {
       var self = this;
@@ -38,10 +38,10 @@
       // Used as a promise:
       // The function was invoked without a callback; ensure that it returns a promise.
       else {
-        if (!defer.promise)
-          throw new Error("No promises support (defer.promise not defined)");
+        if (!safe.promise)
+          throw new Error("No promises support (safe.promise not defined)");
 
-        var promise = new defer.promise(function(ok, err, progress) {
+        var promise = new safe.promise(function(ok, err, progress) {
           next.ok = ok;
           next.err = err;
           next.progress = progress;
@@ -118,7 +118,7 @@
    * This is the promise provider.
    */
 
-  defer.promise = null;
+  safe.promise = null;
 
   /**
    * Helper: shim for setImmediate().
@@ -129,6 +129,6 @@
     (typeof process === 'object') ? process.nextTick :
     function(fn) { return setTimeout(fn, 0); };
 
-  return defer;
+  return safe;
 
 });

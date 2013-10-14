@@ -1,5 +1,5 @@
 require './setup'
-defer = require '..'
+safe = require '..'
 Q = require 'q'
 fn = null
 
@@ -11,7 +11,7 @@ r = (options={}) ->
         prog "100"
         ok()
 
-      fn = defer -> promise
+      fn = safe -> promise
 
       fn().then null, null, (n) ->
         expect(n).eql "100"
@@ -19,7 +19,7 @@ r = (options={}) ->
 
     if options.progress
       it 'progress via callback', (done) ->
-        fn = defer (next) ->
+        fn = safe (next) ->
           expect(next.progress).function
           next.progress "100"
 
@@ -29,13 +29,13 @@ r = (options={}) ->
 
   describe 'async as promise', ->
     it 'should return a promise', ->
-      fn = defer (next) ->
+      fn = safe (next) ->
         next("hi")
 
       expect(fn("hello").then).function
 
     it 'should work', (done) ->
-      fn = defer (next) ->
+      fn = safe (next) ->
         next("hi")
 
       fn("hello").then (message) ->
@@ -43,20 +43,20 @@ r = (options={}) ->
         done()
 
     it '.ok', (done) ->
-      fn = defer (next) -> next.ok 42
+      fn = safe (next) -> next.ok 42
       fn().then (data) ->
         expect(data).eql 42
         done()
 
     it '.err', (done) ->
-      fn = defer (next) -> next.err new Error("Oops")
+      fn = safe (next) -> next.err new Error("Oops")
       fn().then null, (err) ->
         expect(err).instanceof Error
         expect(err.message).eql "Oops"
         done()
 
     it '.wrap', (done) ->
-      fn = defer (next) ->
+      fn = safe (next) ->
         setTimeout (next.wrap -> a.b.c), 0
 
       fn().then null, (err) ->
@@ -66,7 +66,7 @@ r = (options={}) ->
 
   describe 'promise as promise', ->
     it 'should work with ok', (done) ->
-      fn = defer ->
+      fn = safe ->
         Q.promise (ok, fail) ->
           ok "hi"
 
@@ -75,7 +75,7 @@ r = (options={}) ->
         done()
 
     it 'should work with fail', (done) ->
-      fn = defer ->
+      fn = safe ->
         Q.promise (ok, fail) ->
           fail "hi"
 
@@ -85,22 +85,22 @@ r = (options={}) ->
 
 # ----------------------------------------------------------------------------
 describe 'q.js', ->
-  beforeEach -> defer.promise = require('q').promise
-  afterEach ->  defer.promise = undefined
+  beforeEach -> safe.promise = require('q').promise
+  afterEach ->  safe.promise = undefined
   r progress: true
 
 describe 'when.js', ->
-  beforeEach -> defer.promise = require('when').promise
-  afterEach ->  defer.promise = undefined
+  beforeEach -> safe.promise = require('when').promise
+  afterEach ->  safe.promise = undefined
   r progress: true
 
 describe 'promise.js', ->
-  beforeEach -> defer.promise = require('promise')
-  afterEach ->  defer.promise = undefined
+  beforeEach -> safe.promise = require('promise')
+  afterEach ->  safe.promise = undefined
   r()
 
 describe 'rsvp.js', ->
-  beforeEach -> defer.promise = require('rsvp').Promise
-  afterEach ->  defer.promise = undefined
+  beforeEach -> safe.promise = require('rsvp').Promise
+  afterEach ->  safe.promise = undefined
   r()
 

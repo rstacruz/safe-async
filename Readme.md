@@ -18,7 +18,7 @@ defer.js. Yes. All of them. Why?
  It makes your functions work with both async callbacks or promises with no 
  extra code.
 
- * __Portable.__ 
+ * __Portable.__   
  Works for Node.js and the browser. It's also pretty damn small (~70loc).
 
 When not to use it: when your library does its async duties with 100% promises
