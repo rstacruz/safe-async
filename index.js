@@ -31,6 +31,7 @@
           callback.call(self, err); };
         next.ok = function(result) {
           callback.apply(self, [undefined].concat([].slice.call(arguments))); };
+        next.progress = function() {};
         return invoke();
       }
 
