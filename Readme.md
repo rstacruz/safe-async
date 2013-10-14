@@ -6,6 +6,8 @@ safe-async.js
 It catches errors for you. It makes your async functions work with promises or 
 callbacks. In essence: it helps you write useful async API.
 
+[![Travis](https://travis-ci.org/rstacruz/safe-async.png?branch=master)](https://travis-ci.org/rstacruz/safe-async)
+
 When to use it
 --------------
 
@@ -25,17 +27,6 @@ safe-async.js. Yes. All of them. Why?
 When not to use it: when your library does its async duties with 100% promises
 and doesn't work with anything that expects callbacks. [q.js] already features
 great error handling (`q.try`). But then again, when is this ever the case?
-
-What it's not
--------------
-
- * It's not [async.js], because that lets you work many async callback-functions 
- in parallel (among other things).
-
- * It's not [q.js] or [when.js] or [rsvp.js] or [promise.js],
-which helps you write promise functions and work with many promise objects.
-However, you can hook up safe-async to use any of those to generate
-promises.
 
 Get started in 20 seconds
 -------------------------
@@ -116,6 +107,16 @@ x(a, b, c)
   });
 ~~~
 
+What it's not
+-------------
+
+ * It's not [async.js], because that lets you work many async callback-functions 
+ in parallel (among other things).
+
+ * It's not [q.js] or [when.js] or [rsvp.js] or [promise.js],
+which helps you write promise functions and work with many promise objects.
+However, you can hook up safe-async to use any of those to generate
+promises.
 
 What it solves
 --------------
