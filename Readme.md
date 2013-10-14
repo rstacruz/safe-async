@@ -24,7 +24,7 @@ safe-async.js. Yes. All of them. Why?
 
 When not to use it: when your library does its async duties with 100% promises
 and doesn't work with anything that expects callbacks. [q.js] already features
-great error handling (`q.try`).
+great error handling (`q.try`). But then again, when is this ever the case?
 
 What it's not
 -------------
@@ -47,7 +47,7 @@ $ npm install safe-async
 ~~~
 
 Then use it. Bonus: you can optionally hook in a promise provider if you want to
-take advantage of the promise features. (See [safe.promise](#safe-promise))
+take advantage of the promise features. (See [safe.promise](#safepromise))
 
 ~~~ js
 var safe = require('safe-async');
@@ -66,7 +66,7 @@ x = function(a, b, c, done) {
 };
 ~~~
 
-Wrap that function in `safe` instead. (See [safe()](#safe))
+Wrap that function in `safe` instead. (See [safe()](#safefn))
 
 ~~~ js
 // New safe-async way
@@ -216,7 +216,7 @@ safe(function(a,b,c,next) { ...  });`. Notice how errors are now simply
 `throw`n instead of being passed manually.
 
 ~~~ js
-var safe = require('safe');
+var safe = require('safe-async');
 
 // Wrap your function inside `safe(...)`.
 getFeed = safe(function(user, next) {
@@ -330,11 +330,11 @@ Working with promises
 ---------------------
 
 Get Promise support by tying it in with your favorite Promise library. You can 
-swap it out by changing `safe.promise` to the provider of [when.js], [q.js], 
-     [promise.js] or anything else that follows their API.
+swap it out by changing [safe.promise](#safepromise) to the provider of 
+[when.js], [q.js], [promise.js] or anything else that follows their API.
 
 ~~~ js
-var safe = require('safe');
+var safe = require('safe-async');
 
 safe.promise = require('q').promise;
 safe.promise = require('when').promise;
@@ -401,7 +401,7 @@ getFirstPost()
 API
 ---
 
-### safe(fn)
+### `safe(fn)`
 
 A decorator that creates a function derived from `fn`, enhanced with safe-async
 superpowers.
@@ -423,9 +423,9 @@ getName(function(err, name) { //[b]
 });
 ~~~
 
-All arguments will be passed through. In the example below, the names passed
-onto `man` and `companion` are passed through as usual, but the last argument (a
-    function) has been changed to `next`.
+__Arguments:__ All arguments will be passed through. In the example below, the 
+names passed onto `man` and `companion` are passed through as usual, but the 
+last argument (a function) has been changed to `next`.
 
 ~~~ js
 getMessage = safe(function(man, companion, next) {
@@ -439,7 +439,7 @@ getMessage("Doctor", "Donna", function(err, msg) {
 });
 ~~~
 
-Any errors thrown inside `fn` will be passed the callback.
+__Errors:__ Any errors thrown inside `fn` will be passed the callback.
 
 ~~~ js
 getName = safe(function(next) {
@@ -454,13 +454,29 @@ getName(function(err, data) {
 });
 ~~~
 
-### safe.promise
+__Promises:__ The resulting function can be used as a promise as well.
+
+
+~~~ js
+getName = safe(function(next) {
+  next("John");
+});
+
+getName()
+  .then(function(name) {
+    alert("Name: "+name);
+  });
+~~~
+
+----
+
+### `safe.promise`
 
 The promise provider function that allows you to plug in the promise library of
 your choice.
 
 | Provider     | Code                                      |
-| --           | --                                        |
+| ------------ | ----------------------------------------- |
 | [q.js]       | `safe.promise = require('q').promise;`    |
 | [when.js]    | `safe.promise = require('when').promise;` |
 | [promise.js] | `safe.promise = require('promise');`      |
@@ -477,9 +493,12 @@ var promise = safe.promise(function(ok, err, progress) {
 });
 ~~~
 
-### next()
+----
 
-Returns an error, or a result, to the callback.
+### `next()`
+
+Returns a result and invokes the given callback (or resolves the promise, if 
+    used as a promise).
 
 You can return a result by calling `next(result)`.
 
@@ -493,9 +512,7 @@ getName(function(err, name) {
 });
 ~~~
 
-#### Returning errors
-
-You may also return errors. You can do this by `throw`ing.
+__Returning errors:__ You may also return errors. You can do this by `throw`ing.
 
 ~~~ js
 getName = safe(function(next) {
@@ -509,11 +526,9 @@ getName(function(err, name) {
 });
 ~~~
 
-#### Wrapping other callbacks
-
-When `next()` is invoked with a function as an argument, it wraps ("decorates")
-that function to ensure that any errors it produces is propagated properly. See
-[next.wrap()](#next-wrap).
+__Wrapping other callbacks:__ When `next()` is invoked with a function as an 
+argument, it wraps ("decorates") that function to ensure that any errors it 
+produces is propagated properly. See [next.wrap()](#next-wrap).
 
 ~~~ js
 getArticles = safe(function(next) {
@@ -532,10 +547,8 @@ getArticles(function(err, articles) {
 });
 ~~~
 
-#### With promises
-
-You can also return a from the function. safe will automatically figure out
-what to do from that.
+__With promises:__ You can also return a promise from the function. Safe-async 
+will automatically figure out what to do from that.
 
 ~~~ js
 getFirstPost = safe(function() {
@@ -562,7 +575,9 @@ getFirstPost()
 });
 ~~~
 
-### next.ok()
+----
+
+### `next.ok()`
 
 Returns a result. This is the same as calling `next()`.
 
@@ -575,7 +590,9 @@ getName = safe(function(next) {
 }
 ~~~
 
-### next.err()
+----
+
+### `next.err()`
 
 Returns an error. This is the same as `throw`ing an error, but is convenient
 when used inside deeper callbacks that you can't wrap with
@@ -591,7 +608,9 @@ getName = safe(function(next) {
 }
 ~~~
 
-### next.wrap()
+----
+
+### `next.wrap()`
 
 Wraps a function ("decorates") to ensure that all errors it throws are
 propagated properly.
