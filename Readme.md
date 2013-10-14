@@ -638,11 +638,33 @@ getArticles(function(err, articles) {
 });
 ~~~
 
-[when.js]: https://github.com/cujojs/when
-[q.js]: https://github.com/kriskowal/q
-[promise.js]: https://github.com/then/promise
-[rsvp.js]: https://github.com/tildeio/rsvp.js
-[async.js]: https://github.com/caolan/async
+Practical uses
+--------------
+
+### [Express]
+
+Safe-async makes working with promises easy. It ensures that errors are 
+propogated to the `next` callback, so you get errors rendered to your browser 
+instead of failing silently.
+
+~~~ coffee
+app.get '/feed', safe (req, res, next) ->
+  Article.fetchAll()
+  .then (articles) ->
+    res.locals.articles = articles
+    res.render "index"
+~~~
+
+### [Mocha]
+
+Great for testing async too:
+
+~~~ coffee
+it 'should work', safe (next) ->
+  $.get '/xxx', safe.wrap (data) ->
+    expect(data).eql "hello"
+    next()
+~~~
 
 Acknowledgements
 ----------------
@@ -650,3 +672,11 @@ Acknowledgements
 © 2013, Rico Sta. Cruz. Released under the [MIT License].
 
 [MIT License]: http://www.opensource.org/licenses/mit-license.php
+[when.js]: https://github.com/cujojs/when
+[q.js]: https://github.com/kriskowal/q
+[promise.js]: https://github.com/then/promise
+[rsvp.js]: https://github.com/tildeio/rsvp.js
+[async.js]: https://github.com/caolan/async
+[Express]: http://expressjs.com
+[Mocha]: http://visionmedia.github.com/mocha
+
