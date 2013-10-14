@@ -465,6 +465,17 @@ The promise provider function. Safe-async allows
 | [promise.js] | `safe.promise = require('promise');`      |
 | [rsvp.js]    | `safe.promise = require('rsvp').Promise;` |
 
+`safe.promise` is expected to be a function used to create promises in this
+manner below. Most promise libraries implement a function similar to this.
+
+~~~ js
+var promise = safe.promise(function(ok, err, progress) {
+  ok("This returns a result");
+  err("This returns an error");
+  progress("This sends progress updates");
+});
+~~~
+
 ### next()
 
 Returns an error, or a result, to the callback.
