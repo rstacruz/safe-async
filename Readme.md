@@ -643,3 +643,10 @@ getArticles(function(err, articles) {
 [promise.js]: https://github.com/then/promise
 [rsvp.js]: https://github.com/tildeio/rsvp.js
 [async.js]: https://github.com/caolan/async
+
+Acknowledgements
+----------------
+
+© 2013, Rico Sta. Cruz. Released under the [MIT License].
+
+[MIT License]: http://www.opensource.org/licenses/mit-license.php
