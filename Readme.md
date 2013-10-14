@@ -9,21 +9,21 @@ When to use it
 --------------
 
 **Protip:** Any time you're writing a function that takes a callback, use
-defer.js. Yes. All of them.
+defer.js. Yes. All of them. Why?
 
-Hate writing async functions? I used to, too. Defer.js solves many headaches
-with writing asynchronous functions. It's great for writing API libraries or
-models that do things asynchronously.
-
- * __Ensures proper error propagation.__ 
+ * __Ensures proper error propagation.__  
  No need for lots of try/catch blocks: those will be taken care of for you.
 
- * __Promises or callbacks.__ 
+ * __Support promises or callbacks.__  
  It makes your functions work with both async callbacks or promises with no 
  extra code.
 
  * __Portable.__ 
  Works for Node.js and the browser. It's also pretty damn small (~70loc).
+
+When not to use it: when your library does its async duties with 100% promises
+and doesn't work with anything that expects callbacks. [q.js] already features
+great error handling (`q.try`).
 
 What it's not
 -------------
@@ -113,8 +113,11 @@ x(a, b, c)
 ~~~
 
 
-What does it solve
-------------------
+What it solves
+--------------
+
+What follows is a long-winding explanation of Defer.js reason for living. If
+you're already convinced of its need for existence, skip on over to [API](#api).
 
 ### Error catching
 
@@ -164,7 +167,7 @@ unfortunately unexpected:
 ~~~ js
 var john = {
   email: "john@gmail.com",
-  name: null  // <- uh oh
+  name: null  /* <-- uh oh. why doesn't he have a name? */
 }; 
 
 getFeed(john, function(err, data) {
@@ -193,20 +196,20 @@ getFeed = function(user, done) {
       else
         done("No such user");
     });
-  } catch (err) {
+  }
+  catch (err) { /* <-- alright, let's relay some errors to the callback. */
     done(err);
   }
 });
 ~~~
 
-This works as expected, but wrapping all your functions in a try/catch blocks 
-cat be a very cathartic exercise.
+This works as expected, but wrapping all your functions in a try/catch blocks
+cat be a very cathartic exercise. Defer.js to the rescue! Simply wrap your
+function inside `defer(...)` and it'll take care of that for you.
 
-Defer.js to the rescue! Simply decorate your function and it'll take care of 
-that for you.
-
-Instead of writing `x = function(a,b,c,done) { ... }`,
-use `x = defer(function(a,b,c,next) { ...  });`.
+Instead of writing `x = function(a,b,c,done) { ... }`, use `x =
+defer(function(a,b,c,next) { ...  });`. Notice how errors are now simply
+`throw`n instead of being passed manually.
 
 ~~~ js
 var defer = require('defer');
@@ -241,7 +244,7 @@ getFeed(john, function(err, data) {
 
 This now catches the error in `err` as we expected.
 
-~~~
+~~~ js
 Uh oh! Caught an error.
 => TypeError: Cannot call method 'toLowerCase' of null
 ~~~
@@ -275,7 +278,7 @@ getFirstPost(function(title) {
 });
 ~~~
 
-This will get you an unexpected result in some circumstances. What if 
+It works, but it'll get you an unexpected result in some circumstances. What if 
 `data.entries` is empty?
 
 ~~~ js
@@ -306,9 +309,9 @@ getFirstPost = function(next) {
 }
 ~~~
 
-Defer.js provides a `next.wrap()` function that wraps any new callback for you, 
-  which ensures that any errors it throws gets propagated properly.  That same 
-  function can now be rewritten as:
+Defer.js provides a `next.wrap()` function that wraps any new callback for you,
+  which ensures that any errors it throws gets propagated properly. That
+  colossal function can be written more concisely with Defer.js:
 
 ~~~ js
 getFirstPost = defer(function(next) {
@@ -352,7 +355,7 @@ or it can be invoked with a callback:
 
 ~~~ js
 // As a Node-style async function
-getFirstPost(function(title) {
+getFirstPost(function(err, title) {
   $("h1").html(title);
 });
 ~~~
@@ -363,7 +366,7 @@ In the real world, you may be using libraries that only support Promises, and
 have it play safe with libraries that use traditional callbacks.
 
 Defer.js helps you with this. Any defer-powered function you write can use 
-promises. Instead of using the `next()` callback, make it return a function: 
+promises. Instead of using the `next()` callback, make it return a promise object: 
 defer automatically knows what to do.
 
 ~~~ js
@@ -407,11 +410,11 @@ When `next()` is invoked inside `[a]`, the callback given (`[b]`) will run.
 ([next()](#next) is described in detail later below.)
 
 ~~~ js
-getName = defer(function(next) { // [a]
+getName = defer(function(next) { //[a]
   next("John");
 });
 
-getName(function(err, name) { // [b]
+getName(function(err, name) { //[b]
   alert("Hey " + name);
 });
 ~~~
@@ -534,18 +537,30 @@ getFirstPost()
 
 ### next.ok()
 
-Returns a result. See [next.err()](#next-err) for examples.
-
-### next.err()
-
-Returns an error.
+Returns a result. This is the same as calling `next()`.
 
 ~~~ js
 getName = defer(function(next) {
   if (user.name)
-    next.ok(user.name);
+    next(user.name);
   else
-    next.err("User has no name");
+    throw "User has no name";
+}
+~~~
+
+### next.err()
+
+Returns an error. This is the same as `throw`ing an error, but is convenient
+when used inside deeper callbacks that you can't wrap with
+[next.wrap](#next-wrap).
+
+~~~ js
+getName = defer(function(next) {
+  $.get("/user.json")
+  .then(function(data) {
+    if (!data.name)
+      next.err("oops, no name here");
+  })
 }
 ~~~
 
