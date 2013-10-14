@@ -1,10 +1,10 @@
 safe-async.js
 =============
 
-**Standardizes the interface for async APIs.**
+**Provides a standard interface for async APIs with useful features.**
 
-It helps you write great async API. It catches errors for you. It makes your 
-async functions work with promises or callbacks.
+It catches errors for you. It makes your async functions work with promises or 
+callbacks. In essence: it helps you write useful async API.
 
 When to use it
 --------------
