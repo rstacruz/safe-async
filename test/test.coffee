@@ -34,11 +34,17 @@ describe 'async as async', ->
       expect(message).eql "hi John and Ydoneo"
       done()
 
-  it 'should work with error', (done) ->
+  it 'should work with error (throw)', (done) ->
     err = new Error("Uh oh")
+    fn = defer (next) -> throw err
 
-    fn = defer (next) ->
-      next(err)
+    fn (e) ->
+      expect(e).eql err
+      done()
+
+  it 'should work with error (next.err)', (done) ->
+    err = new Error("Uh oh")
+    fn = defer (next) -> next.err err
 
     fn (e) ->
       expect(e).eql err
@@ -118,7 +124,7 @@ describe 'promise as async', ->
 describe 'error catching', ->
   it 'should work', (done) ->
     fn = defer (next) ->
-      timeout next ->
+      timeout next.wrap ->
         throw new Error("Hi")
 
     fn (e, msg) ->

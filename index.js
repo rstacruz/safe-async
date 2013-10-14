@@ -80,13 +80,7 @@
 
   function _next() {
     return function next(result) {
-      var _self = this;
-      if (result instanceof Function)
-        return next.wrap.call(_self, result);
-      else if (result instanceof Error)
-        next.err.call(_self, result);
-      else
-        next.ok.apply(_self, arguments);
+      next.ok.apply(this, arguments);
     };
   }
 

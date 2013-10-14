@@ -81,12 +81,12 @@ x = defer(function(a, b, c, next) {
 });
 ~~~
 
-When invoking another async function, wrap the callback in `next` too. This will catch
+When invoking another async function, wrap the callback in `next.wrap` too. This will catch
 errors inside that function: (See [next.wrap()](#next-wrap))
 
 ~~~ js
 x = defer(function(a, b, c, next) {
-  $.get('/', next(function() { // <-- here
+  $.get('/', next.wrap(function() { /* <-- here */
     if (success)
       next("Result here");
     else
