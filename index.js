@@ -38,12 +38,14 @@
       // Used as a promise:
       // The function was invoked without a callback; ensure that it returns a promise.
       else {
-        if (!defer.promise) throw new Error("No promises support (defer.promise not defined)");
-        var p = {};
-        var promise = new defer.promise(function(_ok, _err, _progress) { p.ok = _ok; p.err = _err; p.progress = _progress; });
-        next.ok = function() { p.ok.apply(promise, arguments); };
-        next.err = function(err) { p.err.call(promise, err); };
-        next.progress = function() { p.progress.apply(promise, arguments); };
+        if (!defer.promise)
+          throw new Error("No promises support (defer.promise not defined)");
+
+        var promise = new defer.promise(function(ok, err, progress) {
+          next.ok = ok;
+          next.err = err;
+          next.progress = progress;
+        });
         immediate(invoke);
         return promise;
       }
