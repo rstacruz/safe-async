@@ -1,4 +1,5 @@
-# Defer.js
+safe-async.js
+=============
 
 **Standardizes the interface for async APIs.**
 
@@ -9,7 +10,7 @@ When to use it
 --------------
 
 **Protip:** Any time you're writing a function that takes a callback, use
-defer.js. Yes. All of them. Why?
+safe-async.js. Yes. All of them. Why?
 
  * __Ensures proper error propagation.__  
  No need for lots of try/catch blocks: those will be taken care of for you.
@@ -33,21 +34,24 @@ What it's not
 
  * It's not [q.js] or [when.js] or [rsvp.js] or [promise.js],
 which helps you write promise functions and work with many promise objects.
-However, you can hook up defer.js to use any of those to generate
+However, you can hook up safe-async to use any of those to generate
 promises.
 
 Get started in 20 seconds
 -------------------------
 
+Install:
+
 ~~~
-$ npm install rstacruz/defer
+$ npm install safe-async
 ~~~
 
-Then:
+Then use it. Bonus: you can optionally hook in a promise provider if you want to
+take advantage of the promise features. (See [safe.promise](#safe-promise))
 
 ~~~ js
-var defer = require('defer');
-defer.promise = require('q').promise; /* <- optional */
+var safe = require('safe-async');
+safe.promise = require('q').promise;
 ~~~
 
 Instead of writing an async function like so:
@@ -62,11 +66,11 @@ x = function(a, b, c, done) {
 };
 ~~~
 
-Wrap that function in `defer` instead. (See [defer()](#defer))
+Wrap that function in `safe` instead. (See [safe()](#safe))
 
 ~~~ js
-// New defer.js way
-x = defer(function(a, b, c, next) {
+// New safe-async way
+x = safe(function(a, b, c, next) {
   if (success)
     next("Result here");
   else
@@ -78,7 +82,7 @@ When invoking another async function, wrap the callback in `next.wrap` too. This
 errors inside that function: (See [next.wrap()](#next-wrap))
 
 ~~~ js
-x = defer(function(a, b, c, next) {
+x = safe(function(a, b, c, next) {
   $.get('/', next.wrap(function() { /* <-- here */
     if (success)
       next("Result here");
@@ -116,7 +120,7 @@ x(a, b, c)
 What it solves
 --------------
 
-What follows is a long-winding explanation of Defer.js reason for living. If
+What follows is a long-winding explanation of safe-async's reason for living. If
 you're already convinced of its need for existence, skip on over to [API](#api).
 
 ### Error catching
@@ -204,18 +208,18 @@ getFeed = function(user, done) {
 ~~~
 
 This works as expected, but wrapping all your functions in a try/catch blocks
-cat be a very cathartic exercise. Defer.js to the rescue! Simply wrap your
-function inside `defer(...)` and it'll take care of that for you.
+cat be a very cathartic exercise. Safe-async to the rescue! Simply wrap your
+function inside `safe(...)` and it'll take care of that for you.
 
 Instead of writing `x = function(a,b,c,done) { ... }`, use `x =
-defer(function(a,b,c,next) { ...  });`. Notice how errors are now simply
+safe(function(a,b,c,next) { ...  });`. Notice how errors are now simply
 `throw`n instead of being passed manually.
 
 ~~~ js
-var defer = require('defer');
+var safe = require('safe');
 
-// Wrap your function inside `defer(...)`.
-getFeed = defer(function(user, next) {
+// Wrap your function inside `safe(...)`.
+getFeed = safe(function(user, next) {
   var id = user.name.toLowerCase();
 
   $.get('/user/'+id+'/feeds.json', function(data) {
@@ -251,9 +255,9 @@ Uh oh! Caught an error.
 
 ### Deep error catching
 
-"So what? We can easily write this decorator without defer.js," you may be 
+"So what? We can easily write this decorator without safe-async," you may be 
 thinking. In fact, it's this very line of thinking that got me to writing 
-defer.js in the first place.
+safe-async in the first place.
 
 Let's move on to a more complex example. Let's say we're writing an async 
 function to fetch some data, crunch it, and return it.
@@ -287,7 +291,7 @@ TypeError: Cannot read property 'title' of undefined
 ~~~
 
 Uh oh: we have an error that happens in an async callback. We need to catch that 
-too. Without defer.js, we may need to do 2 try/catch blocks: one for inside the 
+too. Without safe-async, we may need to do 2 try/catch blocks: one for inside the 
 function body, and another for inside the callback function's body. This is 
 borderline asinine.
 
@@ -309,12 +313,12 @@ getFirstPost = function(next) {
 }
 ~~~
 
-Defer.js provides a `next.wrap()` function that wraps any new callback for you,
-  which ensures that any errors it throws gets propagated properly. That
-  colossal function can be written more concisely with Defer.js:
+Safe-async provides a `next.wrap()` function that wraps any new callback for
+you, which ensures that any errors it throws gets propagated properly. That
+colossal function can be written more concisely with safe-async:
 
 ~~~ js
-getFirstPost = defer(function(next) {
+getFirstPost = safe(function(next) {
   $.get('/posts.json', next.wrap(function(data) {
     var post = data.entries[0].title;
     next(post);
@@ -326,20 +330,20 @@ Working with promises
 ---------------------
 
 Get Promise support by tying it in with your favorite Promise library. You can 
-swap it out by changing `defer.promise` to the provider of [when.js], [q.js], 
+swap it out by changing `safe.promise` to the provider of [when.js], [q.js], 
      [promise.js] or anything else that follows their API.
 
 ~~~ js
-var defer = require('defer');
+var safe = require('safe');
 
-defer.promise = require('q').promise;
-defer.promise = require('when').promise;
-defer.promise = require('promise');
+safe.promise = require('q').promise;
+safe.promise = require('when').promise;
+safe.promise = require('promise');
 ~~~
 
 ### Call it with promises or not
 
-Just write any defer.js-powered async function and it can work with Node-style 
+Just write any safe-async-powered async function and it can work with Node-style 
 callbacks or promises. The same `getFirstPost()` function we wrote can be used 
 as a promise:
 
@@ -365,12 +369,12 @@ getFirstPost(function(err, title) {
 In the real world, you may be using libraries that only support Promises, and 
 have it play safe with libraries that use traditional callbacks.
 
-Defer.js helps you with this. Any defer-powered function you write can use 
+Safe-async helps you with this. Any safe-powered function you write can use 
 promises. Instead of using the `next()` callback, make it return a promise object: 
-defer automatically knows what to do.
+safe automatically knows what to do.
 
 ~~~ js
-getFirstPost = defer(function() {
+getFirstPost = safe(function() {
   return $.get("/posts.json")
   .then(function(data) {
     return data.entries[0];
@@ -397,9 +401,9 @@ getFirstPost()
 API
 ---
 
-### defer(fn)
+### safe(fn)
 
-A decorator that creates a function derived from `fn`, enhanced with defer.js
+A decorator that creates a function derived from `fn`, enhanced with safe-async
 superpowers.
 
 When this new function is invoked (`getName` in the example below), it runs `fn` 
@@ -410,7 +414,7 @@ When `next()` is invoked inside `[a]`, the callback given (`[b]`) will run.
 ([next()](#next) is described in detail later below.)
 
 ~~~ js
-getName = defer(function(next) { //[a]
+getName = safe(function(next) { //[a]
   next("John");
 });
 
@@ -424,7 +428,7 @@ onto `man` and `companion` are passed through as usual, but the last argument (a
     function) has been changed to `next`.
 
 ~~~ js
-getMessage = defer(function(man, companion, next) {
+getMessage = safe(function(man, companion, next) {
   var msg = "How's it goin, " + man + " & " + companion);
   next(msg);
 });
@@ -438,7 +442,7 @@ getMessage("Doctor", "Donna", function(err, msg) {
 Any errors thrown inside `fn` will be passed the callback.
 
 ~~~ js
-getName = defer(function(next) {
+getName = safe(function(next) {
   var name = user.toUpperCase();
   next("John");
 });
@@ -450,6 +454,17 @@ getName(function(err, data) {
 });
 ~~~
 
+### safe.promise
+
+The promise provider function. Safe-async allows
+
+| Provider     | Code                                      |
+| --           | --                                        |
+| [q.js]       | `safe.promise = require('q').promise;`    |
+| [when.js]    | `safe.promise = require('when').promise;` |
+| [promise.js] | `safe.promise = require('promise');`      |
+| [rsvp.js]    | `safe.promise = require('rsvp').Promise;` |
+
 ### next()
 
 Returns an error, or a result, to the callback.
@@ -457,7 +472,7 @@ Returns an error, or a result, to the callback.
 You can return a result by calling `next(result)`.
 
 ~~~ js
-getName = defer(function(next) {
+getName = safe(function(next) {
   next("John");
 });
 
@@ -471,7 +486,7 @@ getName(function(err, name) {
 You may also return errors. You can do this by `throw`ing.
 
 ~~~ js
-getName = defer(function(next) {
+getName = safe(function(next) {
   throw new Error("Something happened");
 }
 
@@ -489,7 +504,7 @@ that function to ensure that any errors it produces is propagated properly. See
 [next.wrap()](#next-wrap).
 
 ~~~ js
-getArticles = defer(function(next) {
+getArticles = safe(function(next) {
   $.get('/articles.json', next(function(data) {
     var articles = data.articles;
     next(articles);
@@ -507,11 +522,11 @@ getArticles(function(err, articles) {
 
 #### With promises
 
-You can also return a from the function. Defer will automatically figure out
+You can also return a from the function. safe will automatically figure out
 what to do from that.
 
 ~~~ js
-getFirstPost = defer(function() {
+getFirstPost = safe(function() {
   return $.get("/posts.json")
   .then(function(data) {
     return data.entries[0];
@@ -540,7 +555,7 @@ getFirstPost()
 Returns a result. This is the same as calling `next()`.
 
 ~~~ js
-getName = defer(function(next) {
+getName = safe(function(next) {
   if (user.name)
     next(user.name);
   else
@@ -555,7 +570,7 @@ when used inside deeper callbacks that you can't wrap with
 [next.wrap](#next-wrap).
 
 ~~~ js
-getName = defer(function(next) {
+getName = safe(function(next) {
   $.get("/user.json")
   .then(function(data) {
     if (!data.name)
@@ -576,7 +591,7 @@ In this example below, any errors happening within the function `[a]` will be
 reported properly.
 
 ~~~ js
-getArticles = defer(function(next) {
+getArticles = safe(function(next) {
   $.get('/articles.json', next.wrap(function(data) { //[a]
     var articles = data.articles;
     next(articles);
@@ -591,10 +606,6 @@ getArticles(function(err, articles) {
     console.log("Articles:", articles);
 });
 ~~~
-
-### defer.promise
-
-The provider function.
 
 [when.js]: https://github.com/cujojs/when
 [q.js]: https://github.com/kriskowal/q
