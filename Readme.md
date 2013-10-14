@@ -21,10 +21,6 @@ models that do things asynchronously.
  * __Ensures proper error propagation.__ 
  No need for lots of try/catch blocks: those will be taken care of for you.
 
- * __Ensures that errors are proper `Error` objects.__ 
-  Any errors thrown by your async functions should be standard error objects.  
-([info](#next-err))
-
  * __Promises or callbacks.__ 
  It makes your functions work with both async callbacks or promises with no 
  extra code.
@@ -226,7 +222,7 @@ getFeed = defer(function(user, next) {
     if (data.entries)
       next(data);
     else
-      next.err("No such user");
+      throw "No such user";
   });
 });
 ~~~
@@ -472,46 +468,7 @@ getName(function(err, name) {
 
 #### Returning errors
 
-You may also return errors. An error anything that is an instance of `Error`,
-    and will be treated differently from non-errors.
-
-~~~ js
-getName = defer(function(next) {
-  next(new Error("Something happened"));
-}
-
-getName(function(err, name) {
-  if (err) {
-    alert(err.message); //=> "Something happened"
-  }
-});
-~~~
-
-#### next.ok() and next.err()
-
-Alternatively, you may also use [next.ok()](#next-ok) and
-[next.err()](#next-err) if you prefer to be more explicit. `next.ok()` works the
-same way as `next()`, while `next.err()` ensures that the given error is made
-into an `Error` object.
-
-~~~ js
-getName = defer(function(next) {
-  if (user.name) {
-    next.ok(user.name);
-  } else {
-    next.err("User has no name");
-  }
-}
-
-getName(function(err, name) {
-  if (err) {
-    alert(err.message); //=> "Something happened"
-  }
-});
-~~~
-
-You don't need to do that, though: any errors you throw are treated the same
-way.
+You may also return errors. You can do this by `throw`ing.
 
 ~~~ js
 getName = defer(function(next) {
@@ -593,26 +550,6 @@ getName = defer(function(next) {
   else
     next.err("User has no name");
 }
-~~~
-
-#### Coercion
-
-It coerces anything given to it as an object of `Error`, if it isn't yet.
-
-~~~ js
-getName = defer(function(next) {
-  if (user.name)
-    next.ok(user.name);
-  else
-    next.err("User has no name");
-}
-
-getName(function(err, name) {
-  if (err) {
-    console.log(err.constructor); //=> "Error"
-    console.log(err.message);     //=> "User has no name"
-  }
-});
 ~~~
 
 ### next.wrap()

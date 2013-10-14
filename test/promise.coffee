@@ -49,7 +49,7 @@ r = (options={}) ->
         done()
 
     it '.err', (done) ->
-      fn = defer (next) -> next.err "Oops"
+      fn = defer (next) -> next.err new Error("Oops")
       fn().then null, (err) ->
         expect(err).instanceof Error
         expect(err.message).eql "Oops"
@@ -80,7 +80,7 @@ r = (options={}) ->
           fail "hi"
 
       fn().then null, (msg) ->
-        expect(msg.message).eql "hi"
+        expect(msg).eql "hi"
         done()
 
 # ----------------------------------------------------------------------------

@@ -72,7 +72,7 @@ describe 'async as async', ->
       done()
 
   it '.err', (done) ->
-    fn = defer (next) -> next.err "Oops"
+    fn = defer (next) -> next.err new Error("Oops")
     fn (err, data) ->
       expect(err).instanceof Error
       expect(err.message).eql "Oops"
@@ -113,11 +113,10 @@ describe 'promise as async', ->
   it 'should work with fail', (done) ->
     fn = defer ->
       Q.promise (ok, fail) ->
-        fail "hi"
+        fail "oops"
 
     fn (e, msg) ->
-      expect(e).instanceof Error
-      expect(e.message).eql 'hi'
+      expect(e).eql "oops"
       done()
 
 # ----------------------------------------------------------------------------

@@ -3,8 +3,6 @@
   else this.defer = factory();
 })(function() {
 
-  var errify;
-
   /**
    * Promise/async shim.
    */
@@ -28,7 +26,7 @@
       if (typeof last === 'function') {
         var callback = last;
         next.err = function(err) {
-          callback.call(self, errify(err)); };
+          callback.call(self, err); };
         next.ok = function(result) {
           callback.apply(self, [undefined].concat([].slice.call(arguments))); };
         return invoke();
@@ -41,7 +39,7 @@
         var p = {};
         var promise = new defer.promise(function(_ok, _err, _progress) { p.ok = _ok; p.err = _err; p.progress = _progress; });
         next.ok = function() { p.ok.apply(promise, arguments); };
-        next.err = function(err) { p.err.call(promise, errify(err)); };
+        next.err = function(err) { p.err.call(promise, err); };
         next.progress = function() { p.progress.apply(promise, arguments); };
         immediate(invoke);
         return promise;
@@ -116,14 +114,6 @@
    */
 
   defer.promise = null;
-
-  /**
-   * Converts a function into error.
-   */
-
-  errify = defer.errify = function(e) {
-    return (e instanceof Error) ? e : new Error(e);
-  };
 
   /**
    * Helper: shim for setImmediate().
