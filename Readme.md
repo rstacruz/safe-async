@@ -497,13 +497,20 @@ var promise = safe.promise(function(ok, err, progress) {
 
 ### `next()`
 
-Returns an error or a success to the promise or callback. Can be invoked in a 
-few ways:
+Resolves the async (success or error) by resolving the promise or running the 
+callback.
 
- * `next(null, result, [args...])` -- return a success
+It can return a success in these ways:
+
+ * `next(null, result, [args...])`
+ * `next.ok(result, [args...])`
+
+or an error like so:
+
  * `next(msg)` -- return an error
- * `next.ok(result, [args...])` -- return a success
  * `next.err(msg)` -- return an error
+
+That is, you invoke it as `next(err, data)` as if it was the callback.
 
 ~~~ js
 getName = safe(function(next) {
@@ -515,8 +522,8 @@ getName(function(err, name) {
 });
 ~~~
 
-__Returning errors:__ You may also return errors. You can do this by `throw`ing 
-an object, or calling `next.err()`.
+__Returning errors:__ You may return errors by invoking `next(error)`, or 
+`next.err(error)`, or `throw`ing something.
 
 ~~~ js
 getName = safe(function(next) {
@@ -530,8 +537,8 @@ getName(function(err, name) {
 });
 ~~~
 
-__Wrapping other callbacks:__ When `next()` is invoked with a function as an 
-argument, it wraps ("decorates") that function to ensure that any errors it 
+__Wrapping other callbacks:__ When `next.wrap()` is invoked with a function as 
+an argument, it wraps ("decorates") that function to ensure that any errors it 
 produces is propagated properly. See [next.wrap()](#next-wrap).
 
 ~~~ js
