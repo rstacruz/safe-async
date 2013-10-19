@@ -57,7 +57,10 @@
 
   function _next() {
     return function next(result) {
-      next.ok.apply(this, arguments);
+      if (arguments[0])
+        next.err.call(this, arguments[0]);
+      else
+        next.ok.apply(this, [].slice.call(arguments, 1));
     };
   }
 

@@ -9,7 +9,16 @@ timeout = (fn) -> setTimeout fn, 20
 describe 'async as async', ->
   it 'should work as async', (done) ->
     fn = safe (next) ->
-      next("hi")
+      next.ok("hi")
+
+    fn (e, message) ->
+      throw e if e
+      expect(message).eql "hi"
+      done()
+
+  it 'next(null, ok)', (done) ->
+    fn = safe (next) ->
+      next(null, "hi")
 
     fn (e, message) ->
       throw e if e
@@ -18,7 +27,7 @@ describe 'async as async', ->
 
   it 'should work as async with 1 argument', (done) ->
     fn = safe (name, next) ->
-      next("hi #{name}")
+      next.ok("hi #{name}")
 
     fn 'John', (e, message) ->
       throw e if e
@@ -27,7 +36,7 @@ describe 'async as async', ->
 
   it 'should work as async with 2 args', (done) ->
     fn = safe (dude, lady, next) ->
-      next("hi #{dude} and #{lady}")
+      next.ok("hi #{dude} and #{lady}")
 
     fn 'John', 'Ydoneo', (e, message) ->
       throw e if e

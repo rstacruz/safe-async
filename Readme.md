@@ -49,11 +49,11 @@ Instead of writing an async function like so:
 
 ~~~ js
 // Old-fashioned callback way
-x = function(a, b, c, done) {
+x = function(a, b, c, next) {
   if (success)
-    done(null, "Result here");
+    next(null, "Result here");
   else
-    done("uh oh, error");
+    next("uh oh, error");
 };
 ~~~
 
@@ -63,7 +63,7 @@ Wrap that function in `safe` instead. (See [safe()](#safefn))
 // New safe-async way
 x = safe(function(a, b, c, next) {
   if (success)
-    next("Result here");
+    next.ok("Result here");
   else
     throw "uh oh, error";
 });
@@ -76,7 +76,7 @@ errors inside that function: (See [next.wrap()](#next-wrap))
 x = safe(function(a, b, c, next) {
   $.get('/', next.wrap(function() { /* <-- here */
     if (success)
-      next("Result here");
+      next.ok("Result here");
     else
       throw "uh oh, error";
   });
@@ -224,7 +224,7 @@ getFeed = safe(function(user, next) {
 
   $.get('/user/'+id+'/feeds.json', function(data) {
     if (data.entries)
-      next(data);
+      next.ok(data);
     else
       next.err("No such user");
   });
@@ -321,7 +321,7 @@ colossal function can be written more concisely with safe-async:
 getFirstPost = safe(function(next) {
   $.get('/posts.json', next.wrap(function(data) {
     var post = data.entries[0].title;
-    next(post);
+    next.ok(post);
   }));
 });
 ~~~
@@ -459,7 +459,7 @@ __Promises:__ The resulting function can be used as a promise as well.
 
 ~~~ js
 getName = safe(function(next) {
-  next("John");
+  next.ok("John");
 });
 
 getName()
@@ -497,14 +497,17 @@ var promise = safe.promise(function(ok, err, progress) {
 
 ### `next()`
 
-Returns a result and invokes the given callback (or resolves the promise, if 
-    used as a promise).
+Returns an error or a success to the promise or callback. Can be invoked in a 
+few ways:
 
-You can return a result by calling `next(result)`.
+ * `next(null, result, [args...])` -- return a success
+ * `next(msg)` -- return an error
+ * `next.ok(result, [args...])` -- return a success
+ * `next.err(msg)` -- return an error
 
 ~~~ js
 getName = safe(function(next) {
-  next("John");
+  next(null, "John");
 });
 
 getName(function(err, name) {
@@ -512,7 +515,8 @@ getName(function(err, name) {
 });
 ~~~
 
-__Returning errors:__ You may also return errors. You can do this by `throw`ing.
+__Returning errors:__ You may also return errors. You can do this by `throw`ing 
+an object, or calling `next.err()`.
 
 ~~~ js
 getName = safe(function(next) {

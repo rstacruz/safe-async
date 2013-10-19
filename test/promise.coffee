@@ -30,13 +30,13 @@ r = (options={}) ->
   describe 'async as promise', ->
     it 'should return a promise', ->
       fn = safe (next) ->
-        next("hi")
+        next.ok("hi")
 
       expect(fn("hello").then).function
 
     it 'should work', (done) ->
       fn = safe (next) ->
-        next("hi")
+        next.ok("hi")
 
       fn("hello").then (message) ->
         expect(message).eql "hi"
