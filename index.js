@@ -74,6 +74,7 @@
   function _wrap(next) {
     return function(fn) {
       return function() {
+        if (err) { next.err.call(this, err); return; }
         try { fn.apply(this, arguments); }
         catch (e) { next.err.call(this, e); }
       };
