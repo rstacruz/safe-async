@@ -662,6 +662,39 @@ Also, if `fs.readFile` will fail, it will invoke the decorated callback
 decorated callback receives a first argument, it assumes its an error and will 
 propagate it.
 
+---
+
+### `next.cwrap()`
+
+Wraps a function ("decorates") to ensure that all errors it throws are
+propagated properly.
+
+`cwrap` is short for "catch-only wrap" -- unlike [next.wrap()](#nextwrap), 
+  `cwrap` does not care about arguments passed onto the decorated function. It 
+  only catches thrown errors, nothing more.
+
+This is great for wrapping callbacks that don't accept error arguments.
+It doesn't expect the first argument of the function to be an error, unlike 
+[next.wrap()](#nextwrap).  In this example below, the wrapped function expects a 
+`chunk` argument, which is not an error.
+
+~~~ js
+readInput = safe(function (next) {
+  var data = '';
+
+  process.stdin.on('data', next.cwrap(function (chunk) {
+    // If isClean throws an error, it'll be propagated into readInput's
+    // error callback.
+    if (!isClean(chunk)) return;
+    data += chunk;
+  });
+
+  process.stdin.on('end', next.cwrap(function () {
+    next.ok(data);
+  });
+});
+~~~
+
 Practical uses
 --------------
 

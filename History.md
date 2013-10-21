@@ -1,3 +1,29 @@
+## v0.3.1 - Oct 22, 2013
+
+Adds `next.cwrap()`, a catch-only version of `next.wrap()` that doesn't care 
+about arguments.
+
+It works exactly like `next.wrap()`, with the exception that it doesn't expect 
+the first argument of the function to be an error. In this example below, the 
+wrapped function expects a `chunk` argument, which is not an error.
+
+~~~ js
+readInput = safe(function (next) {
+  var data = '';
+
+  process.stdin.on('data', next.cwrap(function (chunk) {
+    // If isClean throws an error, it'll be propagated into readInput's
+    // error callback.
+    if (!isClean(chunk)) return;
+    data += chunk;
+  });
+
+  process.stdin.on('end', next.cwrap(function () {
+    next.ok(data);
+  });
+});
+~~~
+
 ## v0.3.0 - Oct 21, 2013
 
 WARNING: possibly not backwards-compatible.
