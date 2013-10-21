@@ -19,6 +19,7 @@
       // Create the `next` handler.
       var next = _next();
       next.wrap = _wrap(next);
+      next.cwrap = _cwrap(next);
 
       // Create the invoker function that, when called, will run `fn()` as needed.
       var invoke = _invoke(fn, args, next, self);
@@ -69,12 +70,32 @@
    *
    * This creates a function `wrap` that taken an argument `fn`, executes it, and
    * passes the errors to `next.err`.
+   *
+   * This also passes on errors from arguments.
    */
 
   function _wrap(next) {
     return function(fn) {
       return function(err) {
         if (err) { next.err.call(this, err); return; }
+        try { fn.apply(this, arguments); }
+        catch (e) { next.err.call(this, e); }
+      };
+    };
+  }
+
+  /**
+   * Creates a `cwrap` decorator function. ("catch-wrap")
+   *
+   * This creates a function `wrap` that taken an argument `fn`, executes it, and
+   * passes the errors to `next.err`.
+   *
+   * Unlike the regular `wrap`, this doesn't care about arguments.
+   */
+
+  function _cwrap(next) {
+    return function(fn) {
+      return function(err) {
         try { fn.apply(this, arguments); }
         catch (e) { next.err.call(this, e); }
       };

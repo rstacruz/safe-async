@@ -98,7 +98,17 @@ describe 'async as async', ->
       expect(data).undefined
       done()
 
-  it 'wrap errors', (done) ->
+  it '.cwrap', (done) ->
+    fn = safe (next) ->
+      setTimeout (next.cwrap -> a.b.c), 0
+
+    fn (err, data) ->
+      expect(err).instanceof Error
+      expect(err.message).match /a is not defined/
+      expect(data).undefined
+      done()
+
+  it '.wrap errors args', (done) ->
     fn = safe (next) ->
       cb = (next.wrap -> 42)
       cb(new Error("uh oh"))
@@ -107,6 +117,16 @@ describe 'async as async', ->
       expect(err).instanceof Error
       expect(err.message).match /uh oh/
       expect(data).undefined
+      done()
+
+  it '.cwrap shouldnt care about args', (done) ->
+    fn = safe (next) ->
+      cb = (next.cwrap -> 42)
+      cb(new Error("uh oh"))
+      next()
+
+    fn (e) ->
+      throw e if e
       done()
 
   it 'this', (done) ->
