@@ -98,6 +98,17 @@ describe 'async as async', ->
       expect(data).undefined
       done()
 
+  it 'wrap errors', (done) ->
+    fn = safe (next) ->
+      cb = (next.wrap -> 42)
+      cb(new Error("uh oh"))
+
+    fn (err, data) ->
+      expect(err).instanceof Error
+      expect(err.message).match /uh oh/
+      expect(data).undefined
+      done()
+
   it 'this', (done) ->
     a = { name: "Hello" }
 
