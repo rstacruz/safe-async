@@ -1,3 +1,29 @@
+## v0.3.0 - Oct 21, 2013
+
+WARNING: possibly not backwards-compatible.
+
+`next.wrap()` now catches errors passed onto it by arguments. This means you can 
+do:
+
+~~~ js
+// New way
+var fname = 'abc.html';
+fs.readFile(fname, next.wrap(function(err, data) {
+  next(null, { file: fname, contents: data });
+});
+~~~
+
+instead of this:
+
+~~~ js
+// Old way (0.2.0 and below)
+var fname = 'abc.html';
+fs.readFile(fname, next.wrap(function(err, data) {
+  if (err) throw err;
+  next(null, { file: fname, contents: data });
+});
+~~~
+
 ## v0.2.0 - Oct 19, 2013
 
 WARNING: not a backward-compatible release. This release changes the `next()`

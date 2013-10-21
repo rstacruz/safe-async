@@ -70,11 +70,12 @@ x = safe(function(a, b, c, next) {
 ~~~
 
 When invoking another async function, wrap the callback in `next.wrap` too. This will catch
-errors inside that function: (See [next.wrap()](#next-wrap))
+errors inside that function, and catch instances when that function is invoked 
+to call an error. (See [next.wrap()](#next-wrap))
 
 ~~~ js
 x = safe(function(a, b, c, next) {
-  $.get('/', next.wrap(function() { /* <-- here */
+  fs.readFile('x', next.wrap(function() { /* <-- here */
     if (success)
       next.ok("Result here");
     else
@@ -267,7 +268,8 @@ function to fetch some data, crunch it, and return it.
  * Fetches posts and gets the title of the first post.
  */
 getFirstPost = function(done) {
-  $.get('/posts.json', function(data) {
+  fs.readFile('posts.json', function(err, data) {
+    if (err) return done(err);
     var post = data.entries[0].title;
     done(null, post);
   });
@@ -298,8 +300,9 @@ borderline asinine.
 ~~~ js
 getFirstPost = function(next) {
   try {
-    $.get('/posts.json', function(data) {
+    fs.readFile('posts.json', function(err, data) {
       try {
+        if (err) return done(err);
         var post = data.entries[0].title;
         next(null, post);
       }
@@ -319,12 +322,17 @@ colossal function can be written more concisely with safe-async:
 
 ~~~ js
 getFirstPost = safe(function(next) {
-  $.get('/posts.json', next.wrap(function(data) {
+  fs.readFile('posts.json', next.wrap(function(err, data) {
     var post = data.entries[0].title;
     next.ok(post);
   }));
 });
 ~~~
+
+Note that we've also gotten rid of the `if (err) return done(err)` line: this is 
+used to ensure that errors are propagated when `fs.readFile()` fails. There's no 
+need for this anymore, since [next.wrap()](#nextwrap) already assumes an
+error is passed to it when there's a first argument.
 
 Working with promises
 ---------------------
@@ -634,7 +642,7 @@ reported properly.
 
 ~~~ js
 getArticles = safe(function(next) {
-  $.get('/articles.json', next.wrap(function(data) { //[a]
+  fs.readFile('/articles.json', next.wrap(function(err, data) { //[a]
     var articles = data.articles;
     next(articles);
   }));
@@ -648,6 +656,11 @@ getArticles(function(err, articles) {
     console.log("Articles:", articles);
 });
 ~~~
+
+Also, if `fs.readFile` will fail, it will invoke the decorated callback 
+(produced by `next.wrap`) with an error as the first argument. When the 
+decorated callback receives a first argument, it assumes its an error and will 
+propagate it.
 
 Practical uses
 --------------
