@@ -6,8 +6,6 @@ safe-async.js
 It catches errors for you. It makes your async functions work with promises or 
 callbacks. In essence: it helps you write useful async API.
 
-[![Travis](https://travis-ci.org/rstacruz/safe-async.png?branch=master)](https://travis-ci.org/rstacruz/safe-async)
-
 When to use it
 --------------
 
@@ -724,3 +722,19 @@ Acknowledgements
 [rsvp.js]: https://github.com/tildeio/rsvp.js
 [async.js]: https://github.com/caolan/async
 [Express]: http://expressjs.com
+
+
+## Thanks
+
+**safe-async** © 2013-2014+, Rico Sta. Cruz. Released under the [MIT License].<br>
+Authored and maintained by Rico Sta. Cruz with help from [contributors].
+
+> [ricostacruz.com](http://ricostacruz.com) &nbsp;&middot;&nbsp;
+> GitHub [@rstacruz](https://github.com/rstacruz) &nbsp;&middot;&nbsp;
+> Twitter [@rstacruz](https://twitter.com/rstacruz)
+
+[MIT License]: http://mit-license.org/
+[contributors]: http://github.com/rstacruz/safe-async/contributors
+
+[![Status](https://travis-ci.org/rstacruz/safe-async.svg?branch=master)](https://travis-ci.org/rstacruz/safe-async)
+[![npm version](https://img.shields.io/npm/v/safe-async.png)](https://npmjs.org/package/safe-async "View this project on npm")
